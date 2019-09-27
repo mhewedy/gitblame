@@ -2,12 +2,18 @@ language: go
 
 go:
   - 1.12.x
+
+# before we deploy, we go build for all operating systems we would like to support
 before_deploy:
-  - find ./
-  - find /
+  - mkdir -p release
+  - "GOOS=darwin GOARCH=amd64 go build -o release/goblame"
+  - "GOOS=windows GOARCH=amd64 go build -o release/goblame.exe"
+
 deploy:
   provider: releases
   api_key: ${GITHUB_API_KEY}
-  file: "github.com/mhewedy/gitblame"
+  file:
+    - "release/goblame"
+    - "release/goblame.exe"
   skip_cleanup: true
 
