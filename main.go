@@ -17,7 +17,7 @@ type Commit struct {
 
 func main() {
 
-	r, err := git.PlainOpen("/Users/mhewedy/Work/gobase/code/src/github.com/mhewedy/gitblame")
+	r, err := git.PlainOpen("/Users/mhewedy/Work/Code/spring-amqp")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -46,7 +46,7 @@ func main() {
 	})
 
 	http.HandleFunc("/api/diff/", func(writer http.ResponseWriter, request *http.Request) {
-		hash := strings.TrimPrefix(request.URL.Path, "/diff/")
+		hash := strings.TrimPrefix(request.URL.Path, "/api/diff/")
 		if err != nil {
 			log.Fatal(err)
 		}
