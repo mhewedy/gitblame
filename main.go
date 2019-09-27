@@ -12,7 +12,7 @@ type Author struct {
 	Email string
 }
 
-type AuthorCommits map[Author][]*object.Commit
+type AuthorCommits map[Author][]object.Commit
 
 func main() {
 
@@ -26,12 +26,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	for author, commits := range authors {
+	for author, commits := range *authors {
 		fmt.Println(author.Email, author.Name, len(commits))
 	}
 }
 
-func groupCommitsByAuthor(r *git.Repository) (AuthorCommits, error) {
+func groupCommitsByAuthor(r *git.Repository) (*AuthorCommits, error) {
 	authorCommits := make(AuthorCommits)
 
 	cIter, err := r.Log(&git.LogOptions{All: true})
@@ -44,13 +44,13 @@ func groupCommitsByAuthor(r *git.Repository) (AuthorCommits, error) {
 		author := Author{Name: c.Author.Name, Email: c.Author.Email}
 		commits, found := authorCommits[author]
 		if !found {
-			commits = make([]*object.Commit, 0, 10)
+			commits = make([]object.Commit, 0, 10)
 		}
-		commits = append(commits, c)
+		commits = append(commits, *c)
 		authorCommits[author] = commits
 
 		return nil
 	})
 
-	return authorCommits, nil
+	return &authorCommits, nil
 }
