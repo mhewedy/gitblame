@@ -1,0 +1,49 @@
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      crossorigin="anonymous">
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            url: "/api"
+        }).done(function (data) {
+            displayAuthors(JSON.parse(data));
+        });
+
+
+    });
+
+    function displayAuthors(authors) {
+
+        let i = 0;
+        for (let author in authors) {
+            let commits = authors[author];
+            $("#container").prepend(authorsCollapseHtml(i, author, commits));
+            i++;
+        }
+    }
+
+    function authorsCollapseHtml(index, author, commits) {
+        return '<div>' +
+            '<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse' + index + '" aria-expanded="false" >' +
+            author + '(' + commits.length + ')' +
+            '</button>' +
+            '</div>' +
+            '<div class="collapse" id="collapse' + index + '">' +
+            '    <div class="card card-body">' +
+            '        Some Text' +
+            '    </div>' +
+            '</div>';
+    }
+
+</script>
+
+<div id="container">
+
+</div>
+
+

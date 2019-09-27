@@ -36,7 +36,7 @@ func main() {
 			for _, c := range v {
 				commits = append(commits, Commit{Message: c.Message, Hash: hex.EncodeToString(c.Hash[:])})
 			}
-			response[k.Name+" ("+k.Email+")"] = commits
+			response[k.Name+" &lt;"+k.Email+"&gt;"] = commits
 		}
 
 		err = json.NewEncoder(writer).Encode(&response)
@@ -68,6 +68,8 @@ func main() {
 			return nil
 		})
 	})
+
+	http.Handle("/", http.FileServer(http.Dir("./static")))
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
