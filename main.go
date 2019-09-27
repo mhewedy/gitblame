@@ -3,8 +3,8 @@ package main
 import (
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4/plumbing/object"
 	"log"
 	"net/http"
 	"strings"
@@ -46,12 +46,27 @@ func main() {
 	})
 
 	http.HandleFunc("/diff/", func(writer http.ResponseWriter, request *http.Request) {
-		hash, err := hex.DecodeString(strings.TrimPrefix(request.URL.Path, "/diff/"))
+		hash := strings.TrimPrefix(request.URL.Path, "/diff/")
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		fmt.Println(hash)
+		cIter, err := r.Log(&git.LogOptions{All: true})
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer cIter.Close()
+
+		cIter.ForEach(func(c *object.Commit) error {
+			if hex.EncodeToString(c.Hash[:]) == hash {
+				patch, err := GetCommitPatch(c)
+				if err != nil {
+					log.Fatal(err)
+				}
+				writer.Write([]byte(patch.String()))
+			}
+			return nil
+		})
 	})
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
