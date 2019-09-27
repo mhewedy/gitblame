@@ -8,6 +8,7 @@ import (
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
 	"log"
 	"net/http"
+	"os"
 	"sort"
 	"strings"
 )
@@ -24,7 +25,13 @@ type AuthorWithCommits struct {
 
 func main() {
 
-	r, err := git.PlainOpen("/Users/mhewedy/Work/Code/jirah-api")
+	if len(os.Args) < 2 {
+		fmt.Println("Usage:", os.Args[0], "<path to local git repository")
+		fmt.Println("example:\n", os.Args[0], `"c:\work\myGitProject"`)
+		os.Exit(-1)
+	}
+
+	r, err := git.PlainOpen(os.Args[1])
 	if err != nil {
 		log.Fatal(err)
 	}
