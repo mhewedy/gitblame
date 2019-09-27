@@ -42,6 +42,10 @@ func getAuthors(r *git.Repository) ([]object.Signature, error) {
 	return authors, nil
 }
 
+func commitsForAuthor(r *git.Repository, s object.Signature) {
+
+}
+
 func contains(s []object.Signature, e object.Signature) bool {
 	for _, elem := range s {
 		if elem.Email == e.Email {
