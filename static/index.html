@@ -41,7 +41,8 @@
         let index = 0;
         for (commit of commits) {
             response += '<div>' +
-                '<button class="btn btn-link" type="button" onclick="openDialog(\'' + commit.hash + '\')" style="text-align: left;">' +
+                '<button class="btn btn-link" type="button" data-toggle="modal" data-target="#diffModal"' +
+                'onclick="hashClicked(\'' + commit.hash + '\')" style="text-align: left;">' +
                 commit.message +
                 '</button>' +
                 '</div>';
@@ -50,14 +51,38 @@
         return response;
     }
 
-    function openDialog(hash) {
-        console.log(hash);
+    function hashClicked(hash) {
+        $.ajax({
+            url: "/api/diff/" + hash
+        }).done(function (data) {
+            openDialog(data);
+        });
+    }
+
+    function openDialog(diff) {
+        $(".modal-body").append(diff);
     }
 
 </script>
 
 <div id="container">
 
+</div>
+
+<div class="modal fade" id="diffModal" tabindex="-1" role="dialog" aria-labelledby="diffModalTitle"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="diffModalTitle">Diff</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+    </div>
 </div>
 
 
