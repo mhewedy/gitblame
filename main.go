@@ -3,9 +3,11 @@ package main
 import (
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"gopkg.in/src-d/go-git.v4"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type Commit struct {
@@ -41,6 +43,15 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+	})
+
+	http.HandleFunc("/diff/", func(writer http.ResponseWriter, request *http.Request) {
+		hash, err := hex.DecodeString(strings.TrimPrefix(request.URL.Path, "/diff/"))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Println(hash)
 	})
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
