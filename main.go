@@ -23,7 +23,7 @@ type AuthorWithCommits struct {
 
 func main() {
 
-	r, err := git.PlainOpen("/Users/mhewedy/Work/Code/spring-amqp")
+	r, err := git.PlainOpen("/Users/mhewedy/Work/Code/jirah-api")
 	if err != nil {
 		log.Fatal(err)
 	}

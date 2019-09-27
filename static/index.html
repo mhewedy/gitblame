@@ -12,7 +12,7 @@
     @media (min-width: 768px) {
         .modal-xxl {
             width: 100%;
-            max-width: 18000px;
+            max-width: 1200px;
         }
     }
 
@@ -65,6 +65,7 @@
     }
 
     function hashClicked(hash) {
+        $(".modal-body").empty();
         $.ajax({
             url: "/api/diff/" + hash
         }).done(function (data) {
