@@ -1,10 +1,14 @@
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
       crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/diff2html/2.11.3/diff2html.min.css">
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
         crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/diff2html/2.11.3/diff2html.min.js"></script>
+
 
 <script>
     $(document).ready(function () {
@@ -60,7 +64,11 @@
     }
 
     function openDialog(diff) {
-        $(".modal-body").append(diff);
+        var diffHtml = Diff2Html.getPrettyHtml(
+            diff,
+            {inputFormat: 'diff', showFiles: true, matching: 'lines', outputFormat: 'side-by-side'}
+        );
+        $(".modal-body").append(diffHtml);
     }
 
 </script>
