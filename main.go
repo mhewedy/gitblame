@@ -29,6 +29,21 @@ func main() {
 	for author, commits := range *authors {
 		fmt.Println(author.Email, author.Name, len(commits))
 	}
+
+	/*ref, _ := r.Head()
+	commit, _ := r.CommitObject(ref.Hash())
+	getCommitDetails(commit)*/
+}
+
+func getCommitDetails(c *object.Commit) {
+	/*
+		fmt.Println(c.Author)
+		fmt.Println(c.Committer)
+		fmt.Println(c.Hash)
+		fmt.Println(c.Message)
+		fmt.Println(c.ParentHashes)
+		fmt.Println(c.PGPSignature)
+		fmt.Println(c.TreeHash)*/
 }
 
 func groupCommitsByAuthor(r *git.Repository) (*AuthorCommits, error) {
@@ -38,6 +53,7 @@ func groupCommitsByAuthor(r *git.Repository) (*AuthorCommits, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer cIter.Close()
 
 	cIter.ForEach(func(c *object.Commit) error {
 
