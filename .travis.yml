@@ -2,4 +2,8 @@ language: go
 
 go:
   - 1.12.x
+deploy:
+  provider: releases
+  file: "gitblame"
+  skip_cleanup: true
 
