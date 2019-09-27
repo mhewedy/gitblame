@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
 	"io"
-	"log"
 )
 
 type Author struct {
@@ -14,34 +12,6 @@ type Author struct {
 }
 
 type AuthorCommits map[Author][]object.Commit
-
-func test() {
-	r, err := git.PlainOpen("/Users/mhewedy/Work/gobase/code/src/github.com/mhewedy/gitblame")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	authors, err := GroupCommitsByAuthor(r)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for author, commits := range *authors {
-		fmt.Println(author.Email, author.Name, len(commits))
-		fmt.Println("****************************")
-
-		for i, commit := range commits {
-			fmt.Println("******i=", i)
-			patch, err := GetCommitPatch(&commit)
-			if err != nil {
-				log.Fatal(err, ">>>>")
-			}
-			fmt.Println(patch, "\n\n\n\n")
-		}
-
-		fmt.Println("****************************")
-	}
-}
 
 func GetCommitPatch(c *object.Commit) (*object.Patch, error) {
 
