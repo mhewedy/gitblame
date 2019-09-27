@@ -33,7 +33,7 @@ func main() {
 
 		for i, commit := range commits {
 			fmt.Println("******i=", i)
-			patch, err := getCommitDiff(&commit)
+			patch, err := getCommitPatch(&commit)
 			if err != nil {
 				log.Fatal(err, ">>>>")
 			}
@@ -44,7 +44,7 @@ func main() {
 	}
 }
 
-func getCommitDiff(c *object.Commit) (*object.Patch, error) {
+func getCommitPatch(c *object.Commit) (*object.Patch, error) {
 
 	tree, err := c.Tree()
 	if err != nil {
