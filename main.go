@@ -7,6 +7,13 @@ import (
 	"log"
 )
 
+type Author struct {
+	Name  string
+	Email string
+}
+
+type AuthorCommits map[Author][]*object.Commit
+
 func main() {
 
 	r, err := git.PlainOpen("/Users/mhewedy/Work/Code/spring-amqp")
@@ -14,18 +21,18 @@ func main() {
 		log.Fatal(err)
 	}
 
-	authors, err := getAuthors(r)
+	authors, err := groupCommitsByAuthor(r)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	for _, author := range authors {
-		fmt.Println(author.Name, author.Email)
+	for author, commits := range authors {
+		fmt.Println(author.Email, author.Name, len(commits))
 	}
 }
 
-func getAuthors(r *git.Repository) ([]object.Signature, error) {
-	authors := make([]object.Signature, 0)
+func groupCommitsByAuthor(r *git.Repository) (AuthorCommits, error) {
+	authorCommits := make(AuthorCommits)
 
 	cIter, err := r.Log(&git.LogOptions{All: true})
 	if err != nil {
@@ -33,24 +40,17 @@ func getAuthors(r *git.Repository) ([]object.Signature, error) {
 	}
 
 	cIter.ForEach(func(c *object.Commit) error {
-		if !contains(authors, c.Author) {
-			authors = append(authors, c.Author)
+
+		author := Author{Name: c.Author.Name, Email: c.Author.Email}
+		commits, found := authorCommits[author]
+		if !found {
+			commits = make([]*object.Commit, 0, 10)
 		}
+		commits = append(commits, c)
+		authorCommits[author] = commits
+
 		return nil
 	})
 
-	return authors, nil
-}
-
-func commitsForAuthor(r *git.Repository, s object.Signature) {
-
-}
-
-func contains(s []object.Signature, e object.Signature) bool {
-	for _, elem := range s {
-		if elem.Email == e.Email {
-			return true
-		}
-	}
-	return false
+	return authorCommits, nil
 }
