@@ -13,12 +13,9 @@
         }).done(function (data) {
             displayAuthors(JSON.parse(data));
         });
-
-
     });
 
     function displayAuthors(authorsWithCommits) {
-
         let i = 0;
         for (let authorWithCommits of authorsWithCommits) {
             $("#container").append(authorsCollapseHtml(i, authorWithCommits.author, authorWithCommits.commits));
