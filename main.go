@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
 	"log"
@@ -81,5 +82,6 @@ func main() {
 
 	http.Handle("/", http.FileServer(http.Dir("./static")))
 
+	fmt.Println("Server starts at http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
