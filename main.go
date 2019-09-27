@@ -7,12 +7,18 @@ import (
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
 	"log"
 	"net/http"
+	"sort"
 	"strings"
 )
 
 type Commit struct {
 	Hash    string `json:"hash"`
 	Message string `json:"message"`
+}
+
+type AuthorWithCommits struct {
+	Author  `json:"author"`
+	Commits []Commit `json:"commits"`
 }
 
 func main() {
@@ -23,7 +29,7 @@ func main() {
 	}
 
 	http.HandleFunc("/api", func(writer http.ResponseWriter, request *http.Request) {
-		response := make(map[string][]Commit)
+		response := make([]AuthorWithCommits, 0)
 
 		authors, err := GroupCommitsByAuthor(r)
 		if err != nil {
@@ -36,8 +42,12 @@ func main() {
 			for _, c := range v {
 				commits = append(commits, Commit{Message: c.Message, Hash: hex.EncodeToString(c.Hash[:])})
 			}
-			response[k.Name+" &lt;"+k.Email+"&gt;"] = commits
+			response = append(response, AuthorWithCommits{Author: k, Commits: commits})
 		}
+
+		sort.Slice(response, func(i, j int) bool {
+			return len(response[i].Commits) > len(response[j].Commits)
+		})
 
 		err = json.NewEncoder(writer).Encode(&response)
 		if err != nil {

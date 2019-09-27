@@ -17,12 +17,11 @@
 
     });
 
-    function displayAuthors(authors) {
+    function displayAuthors(authorsWithCommits) {
 
         let i = 0;
-        for (let author in authors) {
-            let commits = authors[author];
-            $("#container").prepend(authorsCollapseHtml(i, author, commits));
+        for (let authorWithCommits of authorsWithCommits) {
+            $("#container").append(authorsCollapseHtml(i, authorWithCommits.author, authorWithCommits.commits));
             i++;
         }
     }
@@ -30,7 +29,7 @@
     function authorsCollapseHtml(index, author, commits) {
         return '<div>' +
             '<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse' + index + '" aria-expanded="false" >' +
-            author + '(' + commits.length + ')' +
+            author.name + ' &lt;' + author.email + '&gt; ' + '(' + commits.length + ')' +
             '</button>' +
             '</div>' +
             '<div class="collapse" id="collapse' + index + '">' +
