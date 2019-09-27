@@ -34,9 +34,31 @@
             '</div>' +
             '<div class="collapse" id="collapse' + index + '">' +
             '    <div class="card card-body">' +
-            '        Some Text' +
+            commitsHtml(commits) +
             '    </div>' +
             '</div>';
+    }
+
+    function commitsHtml(commits) {
+
+        var response = '';
+
+        let index = 0;
+        for (commit of commits) {
+            response += '<div>' +
+                '<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse-response'
+                + index + '" aria-expanded="false" style="text-align: left;">' +
+                commit.message +
+                '</button>' +
+                '</div>' +
+                '<div class="collapse" id="collapse-response' + index + '">' +
+                '    <div class="card card-body">' +
+                '    </div>' +
+                '</div>';
+            index++;
+        }
+
+        return response;
     }
 
 </script>
