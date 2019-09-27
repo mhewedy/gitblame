@@ -80,7 +80,7 @@ func main() {
 		})
 	})
 
-	http.Handle("/", http.FileServer(http.Dir("./static")))
+	http.HandleFunc("/", Index)
 
 	fmt.Println("Server starts at http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))

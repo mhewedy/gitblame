@@ -1,3 +1,9 @@
+package main
+
+import "net/http"
+
+func Index(writer http.ResponseWriter, request *http.Request) {
+	html := `
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
       crossorigin="anonymous">
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/diff2html/2.11.3/diff2html.min.css">
@@ -102,5 +108,7 @@
         </div>
     </div>
 </div>
-
-
+		`
+	writer.Header().Add("Content-Type", "text/html")
+	writer.Write([]byte(html))
+}
