@@ -5,6 +5,6 @@ go:
 deploy:
   provider: releases
   api_key: ${GITHUB_API_KEY}
-  file: "gitblame"
+  file: "github.com/mhewedy/gitblame"
   skip_cleanup: true
 
