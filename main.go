@@ -22,7 +22,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+	http.HandleFunc("/api", func(writer http.ResponseWriter, request *http.Request) {
 		response := make(map[string][]Commit)
 
 		authors, err := GroupCommitsByAuthor(r)
@@ -45,7 +45,7 @@ func main() {
 		}
 	})
 
-	http.HandleFunc("/diff/", func(writer http.ResponseWriter, request *http.Request) {
+	http.HandleFunc("/api/diff/", func(writer http.ResponseWriter, request *http.Request) {
 		hash := strings.TrimPrefix(request.URL.Path, "/diff/")
 		if err != nil {
 			log.Fatal(err)
