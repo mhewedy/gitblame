@@ -9,8 +9,8 @@ import (
 )
 
 type Author struct {
-	Name  string
-	Email string
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
 type AuthorCommits map[Author][]object.Commit
@@ -21,7 +21,7 @@ func test() {
 		log.Fatal(err)
 	}
 
-	authors, err := groupCommitsByAuthor(r)
+	authors, err := GroupCommitsByAuthor(r)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -32,7 +32,7 @@ func test() {
 
 		for i, commit := range commits {
 			fmt.Println("******i=", i)
-			patch, err := getCommitPatch(&commit)
+			patch, err := GetCommitPatch(&commit)
 			if err != nil {
 				log.Fatal(err, ">>>>")
 			}
@@ -43,7 +43,7 @@ func test() {
 	}
 }
 
-func getCommitPatch(c *object.Commit) (*object.Patch, error) {
+func GetCommitPatch(c *object.Commit) (*object.Patch, error) {
 
 	tree, err := c.Tree()
 	if err != nil {
@@ -79,7 +79,7 @@ func getCommitPatch(c *object.Commit) (*object.Patch, error) {
 	return patch, nil
 }
 
-func groupCommitsByAuthor(r *git.Repository) (*AuthorCommits, error) {
+func GroupCommitsByAuthor(r *git.Repository) (*AuthorCommits, error) {
 	authorCommits := make(AuthorCommits)
 
 	cIter, err := r.Log(&git.LogOptions{All: true})
