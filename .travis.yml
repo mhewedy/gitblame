@@ -6,14 +6,14 @@ go:
 # before we deploy, we go build for all operating systems we would like to support
 before_deploy:
   - mkdir -p release
-  - "GOOS=darwin GOARCH=amd64 go build -o release/goblame"
-  - "GOOS=windows GOARCH=amd64 go build -o release/goblame.exe"
+  - "GOOS=darwin GOARCH=amd64 go build -o release/gitblame"
+  - "GOOS=windows GOARCH=amd64 go build -o release/gitblame.exe"
 
 deploy:
   provider: releases
   api_key: ${GITHUB_API_KEY}
   file:
-    - "release/goblame"
-    - "release/goblame.exe"
+    - "release/gitblame"
+    - "release/gitblame.exe"
   skip_cleanup: true
 

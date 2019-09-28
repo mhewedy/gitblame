@@ -24,7 +24,6 @@ func Index(writer http.ResponseWriter, request *http.Request) {
 
 </style>
 
-
 <script>
     $(document).ready(function () {
         $.ajax({
