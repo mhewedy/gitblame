@@ -17,7 +17,9 @@ example:
 Then open your browser to http://localhost:8080/
 
 ## Download
-Download Latest Windows build from [here](https://github.com/mhewedy/gitblame/releases/download/untagged-ac0bee31d9886b96fa44/gitblame.exe)
+Download Latest Windows build from [here](https://github.com/mhewedy/gitblame/releases/download/untagged-dae4386c9f3c2b6d240b/gitblame.exe)
 
-All binaries could be found in [Releases](https://github.com/mhewedy/gitblame/releases) Section
+Download Latest Linux build from [here](https://github.com/mhewedy/gitblame/releases/download/untagged-dae4386c9f3c2b6d240b/gitblame)
+
+All binaries could be found in [Releases](https://github.com/mhewedy/gitblame/releases) Section.
 
