@@ -4,6 +4,8 @@
 
 Web App To show each member in team work in a web-based interface 
 
+![](https://github.com/mhewedy/gitblame/raw/master/screenshot.png | width=100)
+
 ## Usage: 
     
 ```bash
@@ -15,4 +17,7 @@ example:
 Then open your browser to http://localhost:8080/
 
 ## Download
-Download latest binary from [Releases](https://github.com/mhewedy/gitblame/releases)
+Download Latest Windows build from [here](https://github.com/mhewedy/gitblame/releases/download/untagged-ac0bee31d9886b96fa44/gitblame.exe)
+
+All binaries could be found in [Releases](https://github.com/mhewedy/gitblame/releases) Section
+
