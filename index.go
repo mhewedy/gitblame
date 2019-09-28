@@ -21,12 +21,6 @@ func Index(writer http.ResponseWriter, request *http.Request) {
             max-width: 1200px;
         }
     }
-	.card-header.collapsed {
-		background:#ccc;
-	}
-	.card-header:not(.collapsed) {
-		background:#ee6666;
-	}
 </style>
 
 <script>
