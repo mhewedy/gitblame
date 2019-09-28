@@ -4,7 +4,7 @@
 
 Web App To show each member in team work in a web-based interface 
 
-<img src="https://github.com/mhewedy/gitblame/raw/master/screenshot.png" width="100"  />
+<img src="https://github.com/mhewedy/gitblame/raw/master/screenshot.png" width="50%"  />
 
 ## Usage: 
     
