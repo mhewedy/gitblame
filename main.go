@@ -11,11 +11,13 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"time"
 )
 
 type Commit struct {
-	Hash    string `json:"hash"`
-	Message string `json:"message"`
+	Hash    string    `json:"hash"`
+	Message string    `json:"message"`
+	When    time.Time `json:"when"`
 }
 
 type AuthorWithCommits struct {
@@ -48,7 +50,8 @@ func main() {
 
 			commits := make([]Commit, 0)
 			for _, c := range v {
-				commits = append(commits, Commit{Message: c.Message, Hash: hex.EncodeToString(c.Hash[:])})
+				commits = append(commits,
+					Commit{Message: c.Message, Hash: hex.EncodeToString(c.Hash[:]), When: c.Author.When})
 			}
 			response = append(response, AuthorWithCommits{Author: k, Commits: commits})
 		}

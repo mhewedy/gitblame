@@ -20,6 +20,12 @@ const indexHtmlContent = `
             max-width: 1200px;
         }
     }
+	hr {
+	  margin-top: 3px;
+	  margin-bottom: 3px;
+	  border: 0;
+	  border-top: 1px solid rgba(0, 0, 0, 0.1);
+	}
 </style>
 
 <script>
@@ -41,11 +47,11 @@ const indexHtmlContent = `
 
     function authorsCollapseHtml(index, author, commits) {
         let cellColor = (index % 2) === 0 ? '#f2f2f2' : '#ffffff';
-        return '<div style="background: ' + cellColor + ' ;margin-bottom: 5px; cursor: pointer;" data-toggle="collapse" ' +
-            'data-target="#collapse' + index + '" >' +
-            '<button class="btn btn-link" type="button" aria-expanded="false" style="color: #000000;" >' +
+        return '<div style="color: #3572b0; background: ' + cellColor + ';padding: 10px 0 10px 10px;" ' +
+            ' >' +
+            '<a aria-expanded="false" style="color: #3572b0; cursor: pointer;" data-toggle="collapse" data-target="#collapse' + index + '" >' +
             author.name + ' &lt;' + author.email + '&gt; ' + '(' + commits.length + ')' +
-            '</button>' +
+            '</a>' +
             '</div>' +
             '<div class="collapse" id="collapse' + index + '">' +
             '    <div class="card card-body">' +
@@ -58,12 +64,14 @@ const indexHtmlContent = `
         let response = '';
         let index = 0;
         for (commit of commits) {
-            response += '<div style="background: #f2f2f2 ;margin-bottom: 5px; cursor: pointer;" >' +
-                '<button class="btn btn-link" type="button" data-toggle="modal" data-target="#diffModal" ' +
-                'onclick="hashClicked(\'' + commit.hash + '\')" style="text-align: left;">' +
+            response += '<div style="margin-bottom: 5px;" >' +
+                '<a data-toggle="modal" data-target="#diffModal" onclick="hashClicked(\'' + commit.hash + '\')" ' + 
+				'style="color: #3572b0; text-align: left; cursor: pointer;">' +
                 commit.message.split('\n')[0] +
-                '</button>' +
-                '</div>';
+                '</a>' +
+				'<span style="margin-left: 20px; color: gray; font-size: small">(' + commit.when + ')</span>' +
+                '</div>' +
+				'<hr />';
             index++;
         }
         return response;
@@ -96,7 +104,6 @@ const indexHtmlContent = `
     <div class="modal-dialog modal-xxl" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="diffModalTitle">Diff</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
