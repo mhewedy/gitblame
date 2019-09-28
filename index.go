@@ -69,7 +69,7 @@ const indexHtmlContent = `
 				'style="color: #3572b0; text-align: left; cursor: pointer;">' +
                 commit.message.split('\n')[0] +
                 '</a>' +
-				'<span style="margin-left: 20px; color: gray; font-size: small">(' + commit.when + ')</span>' +
+				'<span style="margin-left: 20px; color: gray; font-size: small; float: right">(' + commit.when + ')</span>' +
                 '</div>' +
 				'<hr />';
             index++;

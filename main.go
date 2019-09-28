@@ -67,27 +67,24 @@ func main() {
 	})
 
 	http.HandleFunc("/api/diff/", func(writer http.ResponseWriter, request *http.Request) {
-		hash := strings.TrimPrefix(request.URL.Path, "/api/diff/")
+
+		hashSlice, err := hex.DecodeString(strings.TrimPrefix(request.URL.Path, "/api/diff/"))
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		cIter, err := r.Log(&git.LogOptions{All: true})
+		var hashArr [20]byte
+		copy(hashArr[:], hashSlice)
+		c, err := object.GetCommit(r.Storer, hashArr)
 		if err != nil {
 			log.Fatal(err)
 		}
-		defer cIter.Close()
 
-		cIter.ForEach(func(c *object.Commit) error {
-			if hex.EncodeToString(c.Hash[:]) == hash {
-				patch, err := GetCommitPatch(c)
-				if err != nil {
-					log.Fatal(err)
-				}
-				writer.Write([]byte(patch.String()))
-			}
-			return nil
-		})
+		patch, err := GetCommitPatch(c)
+		if err != nil {
+			log.Fatal(err)
+		}
+		writer.Write([]byte(patch.String()))
 	})
 
 	http.HandleFunc("/", Index)
