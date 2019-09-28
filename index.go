@@ -3,8 +3,7 @@ package main
 import "net/http"
 
 func Index(writer http.ResponseWriter, request *http.Request) {
-	html := `
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+	html := `<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
       crossorigin="anonymous">
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/diff2html/2.11.3/diff2html.min.css">
 
@@ -41,8 +40,10 @@ func Index(writer http.ResponseWriter, request *http.Request) {
     }
 
     function authorsCollapseHtml(index, author, commits) {
-        return '<div>' +
-            '<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse' + index + '" aria-expanded="false" >' +
+        let cellColor = (index % 2) === 0 ? '#f2f2f2' : '#ffffff';
+        return '<div style="background: ' + cellColor + ' ;margin-bottom: 5px; cursor: pointer;" data-toggle="collapse" ' +
+            'data-target="#collapse' + index + '" >' +
+            '<button class="btn btn-link" type="button" aria-expanded="false" style="color: #000000;" >' +
             author.name + ' &lt;' + author.email + '&gt; ' + '(' + commits.length + ')' +
             '</button>' +
             '</div>' +
@@ -54,13 +55,13 @@ func Index(writer http.ResponseWriter, request *http.Request) {
     }
 
     function commitsHtml(commits) {
-        var response = '';
+        let response = '';
         let index = 0;
         for (commit of commits) {
-            response += '<div>' +
+            response += '<div style="background: #f2f2f2 ;margin-bottom: 5px; cursor: pointer;" >' +
                 '<button class="btn btn-link" type="button" data-toggle="modal" data-target="#diffModal"' +
-                'onclick="hashClicked(\'' + commit.hash + '\')" style="text-align: left;">' +
-                commit.message +
+                'onclick="hashClicked(\'' + commit.hash +'\',\''+commit.message.split('\n')[0] + '\')" style="text-align: left;">' +
+                commit.message.split('\n')[0] +
                 '</button>' +
                 '</div>';
             index++;
@@ -68,20 +69,22 @@ func Index(writer http.ResponseWriter, request *http.Request) {
         return response;
     }
 
-    function hashClicked(hash) {
+    function hashClicked(hash, message) {
         $(".modal-body").empty();
         $.ajax({
             url: "/api/diff/" + hash
         }).done(function (data) {
-            openDialog(data);
+            openDialog(data, message);
         });
     }
 
-    function openDialog(diff) {
+    function openDialog(diff, message) {
         var diffHtml = Diff2Html.getPrettyHtml(
             diff,
             {inputFormat: 'diff', showFiles: true, matching: 'lines', outputFormat: 'line-by-line'}
         );
+        console.log(message);
+        // $('modal-title').text(message)
         $(".modal-body").append(diffHtml);
     }
 
