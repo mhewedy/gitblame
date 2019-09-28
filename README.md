@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/mhewedy/gitblame.svg?branch=master)](https://travis-ci.org/mhewedy/gitblame)
 
-To show each member in team work in a web-based interface 
+Web App To show each member in team work in a web-based interface 
 
 ## Usage: 
     
