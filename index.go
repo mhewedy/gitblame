@@ -2,8 +2,8 @@ package main
 
 import "net/http"
 
-func Index(writer http.ResponseWriter, request *http.Request) {
-	html := `<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+const indexHtmlContent = `
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
       crossorigin="anonymous">
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/diff2html/2.11.3/diff2html.min.css">
 
@@ -89,7 +89,6 @@ func Index(writer http.ResponseWriter, request *http.Request) {
 </script>
 
 <div id="container">
-
 </div>
 
 <div class="modal" id="diffModal" tabindex="-1" role="dialog" aria-labelledby="diffModalTitle"
@@ -106,8 +105,9 @@ func Index(writer http.ResponseWriter, request *http.Request) {
             </div>
         </div>
     </div>
-</div>
-		`
+</div>`
+
+func Index(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Add("Content-Type", "text/html")
-	writer.Write([]byte(html))
+	writer.Write([]byte(indexHtmlContent))
 }
