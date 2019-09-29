@@ -20,44 +20,47 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
 </style>
 
 <body style="margin: 20px 20px 20px 20px">
-<!--Templates -->
-<script id="main" type="text/template">
+
+<script id="dropdown-template" type="text/template">
     <div class="dropdown">
         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false" style="margin-bottom: 20px">
-            Team List with number of commits
+            Team list with number of commits
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            {{#data.authors}}
+            {{#authors}}
             <a class="dropdown-item" href="#dd" onclick="showCommits('{{index}}')">
                 {{author.name}}&lt;{{author.email}}&gt;
                 <span class="badge badge-primary badge-pill">{{commits.length}}</span>
             </a>
-            {{/data.authors}}
+            {{/authors}}
         </div>
     </div>
+</script>
 
-    {{#data.author}}
+<script id="list-group-template" type="text/template">
+    {{#author}}
     <div class="alert alert-info" role="alert">
-        User: {{data.author.name}}&lt;{{data.author.email}}&gt; has {{data.commits.length}} commit:
+        User: {{author.name}}&lt;{{author.email}}&gt; has {{commits.length}} commit:
     </div>
-    {{/data.author}}
+    {{/author}}
 
     <div class="list-group">
-        {{#data.commits}}
+        {{#commits}}
         <a href="#lg" class="list-group-item list-group-item-action flex-column align-items-start"
-           onclick="showDiff('{{title}}','{{hash}}')" data-toggle="modal" data-target="#exampleModalLong">
+           onclick="showDiff('{{title}}','{{hash}}')" data-toggle="modal" data-target="#diffModalLong">
             <div class="d-flex w-100 justify-content-between">
                 <h6 class="mb-1">{{{title}}}</h6>
                 <small>{{since}}</small>
             </div>
             <p class="mb-1">{{{body}}}</p>
         </a>
-        {{/data.commits}}
+        {{/commits}}
     </div>
+</script>
 
-    <!-- Modal -->
-    <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle"
+<script id="diff-dialog-template" type="text/template">
+    <div class="modal fade" id="diffModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle"
          aria-hidden="true">
         <div class="modal-dialog modal-xxl" role="document">
             <div class="modal-content">
@@ -77,24 +80,23 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
             </div>
         </div>
     </div>
-
 </script>
-<!-- //Templates -->
-<div class="target-output"></div>
+
+<div class="dropdown"></div>
+<div class="list-group"></div>
+<div class="diff-dialog"></div>
+
 </body>
 
 <script>
     function bind(elementId, json) {
-        var template = $('#' + elementId).html();
+        var template = $('#' + elementId + "-template").html();
         Mustache.parse(template);
-        $(".target-output").html(Mustache.render(template, json));
+        $("." + elementId).html(Mustache.render(template, json));
     }
 </script>
 <script>
     var authors;
-    var commits;
-    var author;
-
     $(document).ready(function () {
         $.ajax({
             url: "/api"
@@ -103,16 +105,15 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
             authors.forEach(function (author, index) {
                 author.index = index
             });
-            bind("main", {
-                "data": {"authors": authors}
+            bind("dropdown", {
+                "authors": authors
             })
         });
     });
 
     function showCommits(index) {
-
-        author = authors[index].author;
-        commits = authors[index].commits.map(function (commit) {
+        var author = authors[index].author;
+        var commits = authors[index].commits.map(function (commit) {
             var messageArr = commit.message.split("\n");
             var title = messageArr[0];
             var body = messageArr.slice(1, messageArr.length).join('<br/>');
@@ -123,12 +124,9 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
                 "since": 'Since ' + timeSince(new Date(commit.when)) + ' ago'
             }
         });
-        bind("main", {
-            "data": {
-                "authors": authors,
-                "commits": commits,
-                "author": author
-            }
+        bind("list-group", {
+            "commits": commits,
+            "author": author
         })
     }
 
@@ -139,17 +137,9 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
             var diffHtml = Diff2Html.getPrettyHtml(
                 data, {inputFormat: 'diff', showFiles: true, matching: 'lines', outputFormat: 'line-by-line'}
             );
-
-            bind("main", {
-                "data": {
-                    "authors": authors,
-                    "commits": commits,
-                    "author": author,
-                    "diff": {
-                        "title": title,
-                        "body": diffHtml
-                    }
-                }
+            bind("diff-dialog", {
+                "title": title,
+                "body": diffHtml
             })
         });
     }
