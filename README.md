@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/mhewedy/gitblame.svg?branch=master)](https://travis-ci.org/mhewedy/gitblame)
 
-Web App To show each member in team work in a web-based interface 
+Simple Web Application to show each member in team work in a web-based interface 
 
 <img src="https://github.com/mhewedy/gitblame/raw/master/screenshot.gif" width="100%"  />
 
