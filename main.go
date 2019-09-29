@@ -33,7 +33,8 @@ func main() {
 		os.Exit(-1)
 	}
 
-	r, err := git.PlainOpen(os.Args[1])
+	projectPath := os.Args[1]
+	r, err := git.PlainOpen(projectPath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -85,6 +86,17 @@ func main() {
 			log.Fatal(err)
 		}
 		writer.Write([]byte(patch.String()))
+	})
+
+	http.HandleFunc("/api/settings", func(writer http.ResponseWriter, request *http.Request) {
+		settings := struct {
+			Path string `json:"path"`
+		}{Path: projectPath}
+
+		err = json.NewEncoder(writer).Encode(&settings)
+		if err != nil {
+			log.Fatal(err)
+		}
 	})
 
 	http.HandleFunc("/", Index)

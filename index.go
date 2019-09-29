@@ -17,17 +17,24 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
             max-width: 1200px;
         }
     }
-	a {
-		cursor: pointer;
-	}
+
+    a {
+        cursor: pointer;
+    }
 </style>
 
 <body style="margin: 20px 20px 20px 20px">
 
+<script id="settings-template" type="text/template">
+    <nav class="navbar navbar-light bg-light">
+        <span class="navbar-brand mb-0 h1">Commits for Project at : {{settings.path}}</span>
+    </nav>
+</script>
+
 <script id="dropdown-template" type="text/template">
     <div class="dropdown">
         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false" style="margin-bottom: 20px">
+                aria-haspopup="true" aria-expanded="false" style="margin: 20px">
             Team list with number of commits
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -84,6 +91,7 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
     </div>
 </script>
 
+<div class="settings"></div>
 <div class="dropdown"></div>
 <div class="list-group"></div>
 <div class="diff-dialog"></div>
@@ -100,6 +108,15 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
 <script>
     var authors;
     $(document).ready(function () {
+        $.ajax({
+            url: "/api/settings"
+        }).done(function (data) {
+            var settings = JSON.parse(data);
+            bind("settings", {
+                "settings": settings
+            })
+        });
+
         $.ajax({
             url: "/api"
         }).done(function (data) {
