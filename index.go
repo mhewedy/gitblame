@@ -17,6 +17,9 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
             max-width: 1200px;
         }
     }
+	a {
+		cursor: pointer;
+	}
 </style>
 
 <body style="margin: 20px 20px 20px 20px">
@@ -29,7 +32,7 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
             {{#authors}}
-            <a class="dropdown-item" href="#dd" onclick="showCommits('{{index}}')">
+            <a class="dropdown-item" onclick="showCommits('{{index}}')">
                 {{author.name}}&lt;{{author.email}}&gt;
                 <span class="badge badge-primary badge-pill">{{commits.length}}</span>
             </a>
@@ -47,7 +50,7 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
 
     <div class="list-group">
         {{#commits}}
-        <a href="#lg" class="list-group-item list-group-item-action flex-column align-items-start"
+        <a class="list-group-item list-group-item-action flex-column align-items-start"
            onclick="showDiff('{{title}}','{{hash}}')">
             <div class="d-flex w-100 justify-content-between">
                 <h6 class="mb-1">{{{title}}}</h6>
