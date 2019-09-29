@@ -43,9 +43,7 @@ func main() {
 		response := make([]AuthorWithCommits, 0)
 
 		authors, err := GroupCommitsByAuthor(r)
-		if err != nil {
-			log.Fatal(err)
-		}
+		logIfError(err)
 
 		for k, v := range *authors {
 
@@ -62,30 +60,31 @@ func main() {
 		})
 
 		err = json.NewEncoder(writer).Encode(&response)
-		if err != nil {
-			log.Fatal(err)
-		}
+		logIfError(err)
 	})
 
 	http.HandleFunc("/api/diff/", func(writer http.ResponseWriter, request *http.Request) {
 
 		hashSlice, err := hex.DecodeString(strings.TrimPrefix(request.URL.Path, "/api/diff/"))
-		if err != nil {
-			log.Fatal(err)
-		}
+		logIfError(err)
 
 		var hashArr [20]byte
 		copy(hashArr[:], hashSlice)
 		c, err := object.GetCommit(r.Storer, hashArr)
-		if err != nil {
-			log.Fatal(err)
-		}
+		logIfError(err)
 
 		patch, err := GetCommitPatch(c)
-		if err != nil {
-			log.Fatal(err)
-		}
+		logIfError(err)
+
 		writer.Write([]byte(patch.String()))
+	})
+
+	http.HandleFunc("/api/update", func(writer http.ResponseWriter, request *http.Request) {
+		wt, err := r.Worktree()
+		logIfError(err)
+
+		err = wt.Pull(&git.PullOptions{})
+		logIfError(err)
 	})
 
 	http.HandleFunc("/api/settings", func(writer http.ResponseWriter, request *http.Request) {
@@ -94,13 +93,17 @@ func main() {
 		}{Path: projectPath}
 
 		err = json.NewEncoder(writer).Encode(&settings)
-		if err != nil {
-			log.Fatal(err)
-		}
+		logIfError(err)
 	})
 
 	http.HandleFunc("/", Index)
 
 	fmt.Println("Server starts at http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+func logIfError(err error) {
+	if err != nil {
+		log.Println(err)
+	}
 }
