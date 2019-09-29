@@ -2,17 +2,14 @@ package main
 
 import "net/http"
 
-const indexHtmlContent = `
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-      crossorigin="anonymous">
+const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/diff2html/2.11.3/diff2html.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.1.0/mustache.min.js"></script>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/diff2html/2.11.3/diff2html.min.css">
-
-<script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-        crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" crossorigin="anonymous"></script>
-
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/diff2html/2.11.3/diff2html.min.js"></script>
 <style>
     @media (min-width: 768px) {
         .modal-xxl {
@@ -20,99 +17,186 @@ const indexHtmlContent = `
             max-width: 1200px;
         }
     }
-	hr {
-	  margin-top: 3px;
-	  margin-bottom: 3px;
-	  border: 0;
-	  border-top: 1px solid rgba(0, 0, 0, 0.1);
-	}
+
+    hr {
+        margin-top: 3px;
+        margin-bottom: 3px;
+        border: 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+    }
 </style>
 
+<body style="margin: 20px 20px 20px 20px">
+<!--Templates -->
+<script id="main" type="text/template">
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false" style="margin-bottom: 20px">
+            Team List with number of commits
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            {{#data.authors}}
+            <a class="dropdown-item" href="#dd" onclick="showCommits('{{index}}')">
+                {{author.name}}&lt;{{author.email}}&gt;
+                <span class="badge badge-primary badge-pill">{{commits.length}}</span>
+            </a>
+            {{/data.authors}}
+        </div>
+    </div>
+
+    {{#data.author}}
+    <div class="alert alert-info" role="alert">
+        User: {{data.author.name}}&lt;{{data.author.email}}&gt; has {{data.commits.length}} commit:
+    </div>
+    {{/data.author}}
+
+    <div class="list-group">
+        {{#data.commits}}
+        <a href="#lg"  class="list-group-item list-group-item-action flex-column align-items-start"
+           onclick="showDiff('{{title}}','{{hash}}')" data-toggle="modal" data-target="#diffModal">
+            <div class="d-flex w-100 justify-content-between">
+                <h6 class="mb-1">{{{title}}}</h6>
+                <small>{{since}}</small>
+            </div>
+            <p class="mb-1">{{{body}}}</p>
+        </a>
+        {{/data.commits}}
+    </div>
+
+    <!--{{#data.diff}}-->
+    <div class="modal" id="diffModal" tabindex="-1" role="dialog" aria-labelledby="diffModalTitle"
+         aria-hidden="true">
+        <div class="modal-dialog modal-xxl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!--{{{data.diff.title}}}-->
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!--{{data.diff.body}}-->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--{{/data.diff}}-->
+
+</script>
+<!-- //Templates -->
+<div class="target-output"></div>
+</body>
+
 <script>
+    function bind(elementId, json) {
+        var html = Mustache.to_html($("#" + elementId).html(), json);
+        $(".target-output").html(html);
+    }
+</script>
+<script>
+    var authors;
+    var commits;
+    var author;
+
     $(document).ready(function () {
         $.ajax({
             url: "/api"
         }).done(function (data) {
-            displayAuthors(JSON.parse(data));
+            authors = JSON.parse(data);
+            authors.forEach(function (author, index) {
+                author.index = index
+            });
+            bind("main", {
+                "data": {"authors": authors}
+            })
         });
     });
 
-    function displayAuthors(authorsWithCommits) {
-        let i = 0;
-        for (let authorWithCommits of authorsWithCommits) {
-            $("#container").append(authorsCollapseHtml(i, authorWithCommits.author, authorWithCommits.commits));
-            i++;
-        }
+    function showCommits(index) {
+
+        author = authors[index].author;
+        commits = authors[index].commits.map(function (commit) {
+            var messageArr = commit.message.split("\n");
+            var title = messageArr[0];
+            var body = messageArr.slice(1, messageArr.length).join('<br/>');
+            return {
+                "title": escapeQuotes(title),
+                "body": escapeQuotes(body),
+                "hash": commit.hash,
+                "since": 'Since ' + timeSince(new Date(commit.when)) + ' ago'
+            }
+        });
+        bind("main", {
+            "data": {
+                "authors": authors,
+                "commits": commits,
+                "author": author
+            }
+        })
     }
 
-    function authorsCollapseHtml(index, author, commits) {
-        let cellColor = (index % 2) === 0 ? '#f2f2f2' : '#ffffff';
-        return '<div style="color: #3572b0; background: ' + cellColor + ';padding: 10px 0 10px 10px;" ' +
-            ' >' +
-            '<a aria-expanded="false" style="color: #3572b0; cursor: pointer;" data-toggle="collapse" data-target="#collapse' + index + '" >' +
-            author.name + ' &lt;' + author.email + '&gt; ' + '(' + commits.length + ')' +
-            '</a>' +
-            '</div>' +
-            '<div class="collapse" id="collapse' + index + '">' +
-            '    <div class="card card-body">' +
-            commitsHtml(commits) +
-            '    </div>' +
-            '</div>';
-    }
+    function showDiff(title, hash) {
 
-    function commitsHtml(commits) {
-        let response = '';
-        let index = 0;
-        for (commit of commits) {
-            response += '<div style="margin-bottom: 5px;" >' +
-                '<a data-toggle="modal" data-target="#diffModal" onclick="hashClicked(\'' + commit.hash + '\')" ' + 
-				'style="color: #3572b0; text-align: left; cursor: pointer;">' +
-                commit.message.split('\n')[0] +
-                '</a>' +
-				'<span style="margin-left: 20px; color: gray; font-size: small; float: right">(' + commit.when + ')</span>' +
-                '</div>' +
-				'<hr />';
-            index++;
-        }
-        return response;
-    }
-
-    function hashClicked(hash) {
         $(".modal-body").empty();
+
         $.ajax({
             url: "/api/diff/" + hash
         }).done(function (data) {
-            openDialog(data);
-        });
-    }
+            var diffHtml = Diff2Html.getPrettyHtml(
+                data, {inputFormat: 'diff', showFiles: true, matching: 'lines', outputFormat: 'line-by-line'}
+            );
 
-    function openDialog(diff) {
-        var diffHtml = Diff2Html.getPrettyHtml(
-            diff,
-            {inputFormat: 'diff', showFiles: true, matching: 'lines', outputFormat: 'line-by-line'}
-        );
-        $(".modal-body").append(diffHtml);
+            bind("main", {
+                "data": {
+                    "authors": authors,
+                    "commits": commits,
+                    "author": author,
+                    "diff": {
+                        "title": title,
+                        "body": diffHtml
+                    }
+                }
+            })
+        });
     }
 
 </script>
 
-<div id="container">
-</div>
+<script>
+    
+    function escapeQuotes(str) {
+        return str.replace(/'/g, '&apos;').replace(/"/g, '&quot;');
+    }
+    
+    //https://stackoverflow.com/a/3177838/171950
+    function timeSince(date) {
+        var seconds = Math.floor((new Date() - date) / 1000);
+        var interval = Math.floor(seconds / 31536000);
 
-<div class="modal" id="diffModal" tabindex="-1" role="dialog" aria-labelledby="diffModalTitle"
-     aria-hidden="true">
-    <div class="modal-dialog modal-xxl" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body" style="overflow: scroll;">
-            </div>
-        </div>
-    </div>
-</div>`
+        if (interval > 1) {
+            return interval + " years";
+        }
+        interval = Math.floor(seconds / 2592000);
+        if (interval > 1) {
+            return interval + " months";
+        }
+        interval = Math.floor(seconds / 86400);
+        if (interval > 1) {
+            return interval + " days";
+        }
+        interval = Math.floor(seconds / 3600);
+        if (interval > 1) {
+            return interval + " hours";
+        }
+        interval = Math.floor(seconds / 60);
+        if (interval > 1) {
+            return interval + " minutes";
+        }
+        return Math.floor(seconds) + " seconds";
+    }
+
+</script>
+`
 
 func Index(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Add("Content-Type", "text/html")
