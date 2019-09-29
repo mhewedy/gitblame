@@ -16,4 +16,6 @@ deploy:
     - "release/gitblame"
     - "release/gitblame.exe"
   skip_cleanup: true
+  on:
+    tags: true
 
