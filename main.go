@@ -46,7 +46,6 @@ func main() {
 		logIfError(err)
 
 		for k, v := range *authors {
-
 			commits := make([]Commit, 0)
 			for _, c := range v {
 				commits = append(commits,
@@ -55,9 +54,16 @@ func main() {
 			response = append(response, AuthorWithCommits{Author: k, Commits: commits})
 		}
 
+		// sort entries by commit count
 		sort.Slice(response, func(i, j int) bool {
 			return len(response[i].Commits) > len(response[j].Commits)
 		})
+		// sort commits by time
+		for _, v := range response {
+			sort.Slice(v.Commits, func(i, j int) bool {
+				return v.Commits[i].When.After(v.Commits[j].When)
+			})
+		}
 
 		err = json.NewEncoder(writer).Encode(&response)
 		logIfError(err)
