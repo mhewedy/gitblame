@@ -9,20 +9,13 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.1.0/mustache.min.js"></script>
 
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/diff2html/2.11.3/diff2html.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/diff2html/2.11.3/diff2html.min.css">
 <style>
     @media (min-width: 768px) {
         .modal-xxl {
             width: 100%;
             max-width: 1200px;
         }
-    }
-
-    hr {
-        margin-top: 3px;
-        margin-bottom: 3px;
-        border: 0;
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
     }
 </style>
 
@@ -52,8 +45,8 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
 
     <div class="list-group">
         {{#data.commits}}
-        <a href="#lg"  class="list-group-item list-group-item-action flex-column align-items-start"
-           onclick="showDiff('{{title}}','{{hash}}')" data-toggle="modal" data-target="#diffModal">
+        <a href="#lg" class="list-group-item list-group-item-action flex-column align-items-start"
+           onclick="showDiff('{{title}}','{{hash}}')" data-toggle="modal" data-target="#exampleModalLong">
             <div class="d-flex w-100 justify-content-between">
                 <h6 class="mb-1">{{{title}}}</h6>
                 <small>{{since}}</small>
@@ -63,24 +56,27 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
         {{/data.commits}}
     </div>
 
-    <!--{{#data.diff}}-->
-    <div class="modal" id="diffModal" tabindex="-1" role="dialog" aria-labelledby="diffModalTitle"
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle"
          aria-hidden="true">
         <div class="modal-dialog modal-xxl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <!--{{{data.diff.title}}}-->
+                    <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <!--{{data.diff.body}}-->
+                    ...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
                 </div>
             </div>
         </div>
     </div>
-    <!--{{/data.diff}}-->
 
 </script>
 <!-- //Templates -->
@@ -89,8 +85,9 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
 
 <script>
     function bind(elementId, json) {
-        var html = Mustache.to_html($("#" + elementId).html(), json);
-        $(".target-output").html(html);
+        var template = $('#' + elementId).html();
+        Mustache.parse(template);
+        $(".target-output").html(Mustache.render(template, json));
     }
 </script>
 <script>
@@ -136,9 +133,6 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
     }
 
     function showDiff(title, hash) {
-
-        $(".modal-body").empty();
-
         $.ajax({
             url: "/api/diff/" + hash
         }).done(function (data) {
@@ -163,11 +157,11 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
 </script>
 
 <script>
-    
+
     function escapeQuotes(str) {
         return str.replace(/'/g, '&apos;').replace(/"/g, '&quot;');
     }
-    
+
     //https://stackoverflow.com/a/3177838/171950
     function timeSince(date) {
         var seconds = Math.floor((new Date() - date) / 1000);
