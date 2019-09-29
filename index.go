@@ -27,7 +27,9 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
 
 <script id="settings-template" type="text/template">
     <nav class="navbar navbar-light bg-light">
-        <span class="navbar-brand mb-0 h1">Commits for Project at : {{settings.path}}</span>
+        <span class="navbar-brand mb-0 h1">Commits for Project at :
+            <span style="font-family: monospace; font-weight: bold">{{settings.path}}</span>
+        </span>
     </nav>
 </script>
 
@@ -103,8 +105,18 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
 </script>
 
 <div class="settings"></div>
-<div class="action-buttons"></div>
-<div class="dropdown"></div>
+
+<div>
+    <div class="row">
+        <div class="col-6">
+            <div class="dropdown"></div>
+        </div>
+        <div class="col-6">
+            <div class="action-buttons" style="float: right"></div>
+        </div>
+    </div>
+</div>
+
 <div class="list-group"></div>
 <div class="diff-dialog"></div>
 
