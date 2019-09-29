@@ -48,7 +48,7 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
     <div class="list-group">
         {{#commits}}
         <a href="#lg" class="list-group-item list-group-item-action flex-column align-items-start"
-           onclick="showDiff('{{title}}','{{hash}}')" data-toggle="modal" data-target="#diffModalLong">
+           onclick="showDiff('{{title}}','{{hash}}')">
             <div class="d-flex w-100 justify-content-between">
                 <h6 class="mb-1">{{{title}}}</h6>
                 <small>{{since}}</small>
@@ -60,22 +60,21 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
 </script>
 
 <script id="diff-dialog-template" type="text/template">
-    <div class="modal fade" id="diffModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle"
+    <div class="modal fade" id="diffModalLong" tabindex="-1" role="dialog" aria-labelledby="diffModalLongTitle"
          aria-hidden="true">
         <div class="modal-dialog modal-xxl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+                    <h5 class="modal-title" id="diffModalLongTitle">{{{title}}}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    ...
+                    {{{body}}}
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
                 </div>
             </div>
         </div>
@@ -140,7 +139,8 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
             bind("diff-dialog", {
                 "title": title,
                 "body": diffHtml
-            })
+            });
+            $('#diffModalLong').modal('show');
         });
     }
 
