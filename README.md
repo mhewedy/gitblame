@@ -16,7 +16,7 @@ example:
 
 Then open your browser to http://localhost:8080/
 
-## Download
+## Downloads
 Download Latest [Windows build](https://github.com/mhewedy/gitblame/releases/download/v1/gitblame.exe)|
 [Linux build](https://github.com/mhewedy/gitblame/releases/download/v1/gitblame)
 
