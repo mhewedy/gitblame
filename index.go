@@ -31,6 +31,17 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
     </nav>
 </script>
 
+<script id="action-buttons-template" type="text/template">
+    <div style="margin: 20px">
+        <button id="btn-update" class="btn btn-warning" type="button" onclick="update()">
+            {{#updating}}
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            {{/updating}}
+            Update Repository
+        </button>
+    </div>
+</script>
+
 <script id="dropdown-template" type="text/template">
     <div class="dropdown">
         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
@@ -92,6 +103,7 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
 </script>
 
 <div class="settings"></div>
+<div class="action-buttons"></div>
 <div class="dropdown"></div>
 <div class="list-group"></div>
 <div class="diff-dialog"></div>
@@ -106,6 +118,7 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
     }
 </script>
 <script>
+
     var authors;
     $(document).ready(function () {
         $.ajax({
@@ -129,6 +142,25 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
             })
         });
     });
+    // ---------------------------------------
+
+    bind("action-buttons", {});
+
+    function update() {
+        toggleButton("btn-update", "updating", false);
+        $.ajax({url: "/api/update"}).done(function () {
+            toggleButton("btn-update", "updating", true);
+        })
+    }
+
+    function toggleButton(btnId, modelVar, enable) {
+        var obj = {};
+        obj[modelVar] = !enable;
+        bind("action-buttons", obj);
+        $("#" + btnId).prop('disabled', !enable);
+    }
+
+    // ---------------------------------------
 
     function showCommits(index) {
         var author = authors[index].author;
@@ -148,6 +180,8 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
             "author": author
         })
     }
+
+    // ---------------------------------------
 
     function showDiff(title, hash) {
         $.ajax({
