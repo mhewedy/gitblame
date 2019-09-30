@@ -25,6 +25,10 @@ type AuthorWithCommits struct {
 	Commits []Commit `json:"commits"`
 }
 
+const (
+	ErrAuthenticationRequired = "authentication required"
+)
+
 func main() {
 
 	if len(os.Args) < 2 {
@@ -91,6 +95,9 @@ func main() {
 
 		err = wt.Pull(&git.PullOptions{})
 		logIfError(err)
+		if err.Error() == ErrAuthenticationRequired {
+			writer.WriteHeader(http.StatusUnauthorized)
+		}
 	})
 
 	http.HandleFunc("/api/settings", func(writer http.ResponseWriter, request *http.Request) {

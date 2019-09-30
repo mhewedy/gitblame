@@ -25,6 +25,16 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
 
 <body style="margin: 20px 20px 20px 20px">
 
+<script id="error-template" type="text/template">
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{{error}}}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+</script>
+
 <script id="settings-template" type="text/template">
     <nav class="navbar navbar-light bg-light">
         <span class="navbar-brand mb-0 h1">Commits for Project at :
@@ -104,6 +114,7 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
     </div>
 </script>
 
+<div class="error"></div>
 <div class="settings"></div>
 
 <div>
@@ -162,7 +173,15 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
         toggleButton("btn-update", "updating", false);
         $.ajax({url: "/api/update"}).done(function () {
             toggleButton("btn-update", "updating", true);
-        })
+        }).fail(function (resp) {
+            if (resp.status === 401) {
+                bind("error", {
+                    "error":
+                        "Cannot update repository, authentication required. For now, try to use <b>git pull</b>."
+                })
+            }
+            toggleButton("btn-update", "updating", true);
+        });
     }
 
     function toggleButton(btnId, modelVar, enable) {
