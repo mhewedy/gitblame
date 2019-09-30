@@ -1,16 +1,22 @@
 package main
 
 import (
+	"bufio"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"golang.org/x/crypto/ssh/terminal"
+	"gopkg.in/src-d/go-billy.v4/memfs"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
+	gitHttp "gopkg.in/src-d/go-git.v4/plumbing/transport/http"
+	"gopkg.in/src-d/go-git.v4/storage/memory"
 	"log"
 	"net/http"
 	"os"
 	"sort"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -31,14 +37,17 @@ const (
 
 func main() {
 
-	if len(os.Args) < 2 {
-		fmt.Println("Usage:", os.Args[0], "<path to local git repository")
-		fmt.Println("example:\n", os.Args[0], `"c:\work\myGitProject"`)
-		os.Exit(-1)
+	url, username, password := readParams()
+	auth := &gitHttp.BasicAuth{
+		Username: username,
+		Password: password,
 	}
 
-	projectPath := os.Args[1]
-	r, err := git.PlainOpen(projectPath)
+	r, err := git.Clone(memory.NewStorage(), memfs.New(), &git.CloneOptions{
+		Auth:     auth,
+		URL:      url,
+		Progress: os.Stdout,
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -93,7 +102,7 @@ func main() {
 		wt, err := r.Worktree()
 		logIfError(err)
 
-		err = wt.Pull(&git.PullOptions{})
+		err = wt.Pull(&git.PullOptions{Auth: auth})
 		logIfError(err)
 		if err.Error() == ErrAuthenticationRequired {
 			writer.WriteHeader(http.StatusUnauthorized)
@@ -103,7 +112,7 @@ func main() {
 	http.HandleFunc("/api/settings", func(writer http.ResponseWriter, request *http.Request) {
 		settings := struct {
 			Path string `json:"path"`
-		}{Path: projectPath}
+		}{Path: url}
 
 		err = json.NewEncoder(writer).Encode(&settings)
 		logIfError(err)
@@ -113,6 +122,29 @@ func main() {
 
 	fmt.Println("Server starts at http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+func readParams() (string, string, string) {
+	if len(os.Args) < 2 {
+		fmt.Println("Usage:", os.Args[0], "<repo url>")
+		os.Exit(-1)
+	}
+	username, password := credentials()
+	return os.Args[1], username, password
+}
+
+//https://stackoverflow.com/a/32768479/171950
+func credentials() (string, string) {
+	reader := bufio.NewReader(os.Stdin)
+
+	fmt.Print("Enter Username: ")
+	username, _ := reader.ReadString('\n')
+
+	fmt.Print("Enter Password: ")
+	bytePassword, _ := terminal.ReadPassword(int(syscall.Stdin))
+	password := string(bytePassword)
+
+	return strings.TrimSpace(username), strings.TrimSpace(password)
 }
 
 func logIfError(err error) {

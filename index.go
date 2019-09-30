@@ -32,7 +32,14 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-
+</script>
+<script id="info-template" type="text/template">
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{{info}}}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
 </script>
 
 <script id="settings-template" type="text/template">
@@ -115,6 +122,7 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
 </script>
 
 <div class="error"></div>
+<div class="info"></div>
 <div class="settings"></div>
 
 <div>
@@ -173,11 +181,11 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
         toggleButton("btn-update", "updating", false);
         $.ajax({url: "/api/update"}).done(function () {
             toggleButton("btn-update", "updating", true);
+            bind("info", {"info": "Updated successfully"})
         }).fail(function (resp) {
             if (resp.status === 401) {
                 bind("error", {
-                    "error":
-                        "Cannot update repository, authentication required. For now, try to use <b>git pull</b>."
+                    "error": "Cannot update repository, authentication required. For now, try to use <b>git pull</b>."
                 })
             }
             toggleButton("btn-update", "updating", true);
