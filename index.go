@@ -161,6 +161,10 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
             })
         });
 
+        getAuthors();
+    });
+
+    function getAuthors() {
         $.ajax({
             url: "/api"
         }).done(function (data) {
@@ -172,7 +176,8 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
                 "authors": authors
             })
         });
-    });
+    }
+
     // ---------------------------------------
 
     bind("action-buttons", {});
@@ -180,8 +185,12 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
     function update() {
         toggleButton("btn-update", "updating", false);
         $.ajax({url: "/api/update"}).done(function () {
+
+            getAuthors();
+
             toggleButton("btn-update", "updating", true);
-            bind("info", {"info": "Updated successfully"})
+            bind("info", {"info": "Updated successfully"});
+            
         }).fail(function (resp) {
             if (resp.status === 401) {
                 bind("error", {
