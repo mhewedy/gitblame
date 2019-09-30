@@ -106,9 +106,12 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="diffModalLongTitle">{{{title}}}</h5>
+                    {{#bbUrl}}
                     <a href="{{bbUrl}}" target="_blank">
-                        <img style="padding: 5px 20px 0 20px;" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAABYUlEQVRIidWUP0oDURCHv3nZNFaKIIgsqVwEbeztrIRACg/hAexcC8HFQ+QgXkDxBLpKbEQUERW0szA7FnFl9/2JkKyg072Zeb9v5r1h4L+bACwf6o4IWw0rHw9S6UcAInSBbqP6igH65utw2aQ4QMFI0wAUhrxpAFIBiDYPKDUNQPvjFwDtUQdSOpJMb4HYk/sM3Ad0OsCsq87dIJUYICp9Crl4ACqcXafS86knmZ4AG06gMjTmGyr+ZxJlPVA9wKrPqRUtU/GH/iFeOdJ525lkugTMeW8Ung7MmEkqhm4XRlgL5UvL08H7mElS4wIKwgCDB3BzIK/Ag7ci3z9oEPB0tScv5SGygjmw6ACgl2R6brk7gWJqL1EHCDnKplssMwQmxiXU91p1itAGVkZhaRgrPjVAGNNBy3AxNWBYL1LshCTTR2BhQv23wb7UdpM9RYiwq7CNuvCfTOF0wsL+sH0C8bZgkDkx4mYAAAAASUVORK5CYII="/>
+                        <img style="padding: 5px 20px 0 20px;"
+                             src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAABYUlEQVRIidWUP0oDURCHv3nZNFaKIIgsqVwEbeztrIRACg/hAexcC8HFQ+QgXkDxBLpKbEQUERW0szA7FnFl9/2JkKyg072Zeb9v5r1h4L+bACwf6o4IWw0rHw9S6UcAInSBbqP6igH65utw2aQ4QMFI0wAUhrxpAFIBiDYPKDUNQPvjFwDtUQdSOpJMb4HYk/sM3Ad0OsCsq87dIJUYICp9Crl4ACqcXafS86knmZ4AG06gMjTmGyr+ZxJlPVA9wKrPqRUtU/GH/iFeOdJ525lkugTMeW8Ung7MmEkqhm4XRlgL5UvL08H7mElS4wIKwgCDB3BzIK/Ag7ci3z9oEPB0tScv5SGygjmw6ACgl2R6brk7gWJqL1EHCDnKplssMwQmxiXU91p1itAGVkZhaRgrPjVAGNNBy3AxNWBYL1LshCTTR2BhQv23wb7UdpM9RYiwq7CNuvCfTOF0wsL+sH0C8bZgkDkx4mYAAAAASUVORK5CYII="/>
                     </a>
+                    {{/bbUrl}}
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -239,9 +242,15 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
 
     function showDiff(title, hash) {
 
-        var parts = repoUrl.split('/');
-        var bbUrl = parts.slice(0, 3).join('/') + '/projects/' + parts[4] + '/repos/' +
-            parts[5].split('.')[0] + '/commits/' + hash;
+        function isBitbucketUrl() {
+            return repoUrl.indexOf('/projects/') > 0 && repoUrl.indexOf('/repos/') > 0;
+        }
+
+        if (isBitbucketUrl()) {
+            var parts = repoUrl.split('/');
+            var bbUrl = parts.slice(0, 3).join('/') + '/projects/' + parts[4] + '/repos/' +
+                parts[5].split('.')[0] + '/commits/' + hash;
+        }
 
         $.ajax({
             url: "/api/diff/" + hash
