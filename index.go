@@ -92,10 +92,10 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
     </div>
     {{/author}}
 
-    <div class="list-group">
+    <div class="list-group-flush">
         {{#commits}}
         <a class="list-group-item list-group-item-action flex-column align-items-start"
-           onclick="showDiff('{{title}}','{{hash}}')">
+           onclick="showDiff('{{title}}','{{hash}}')" id="commit-{{hash}}">
             <div class="d-flex w-100 justify-content-between">
                 <h6 class="mb-1">{{{title}}}</h6>
                 <small>{{since}}</small>
@@ -264,12 +264,18 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
         function isBitbucketUrl() {
             return repoUrl.indexOf('/scm/') > 0;
         }
+        
+        function applyActiveClass() {
+            $("#commit-" + hash).addClass('active').css("color", "#fff");
+        }
 
         if (isBitbucketUrl()) {
             var parts = repoUrl.split('/');
             var bbUrl = parts.slice(0, 3).join('/') + '/projects/' + parts[4] + '/repos/' +
                 parts[5].split('.')[0] + '/commits/' + hash;
         }
+
+        applyActiveClass();
 
         $.ajax({
             url: "/api/diff/" + hash
@@ -283,6 +289,9 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
                 bbUrl: bbUrl
             });
             $('#diffModalLong').modal('show');
+            $('#diffModalLong').on('hidden.bs.modal', function (e) {
+                $("#commit-" + hash).removeClass('active').css("color", "#000");
+            })
         });
     }
 
@@ -301,11 +310,12 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
         '=': '&#x3D;'
     };
 
-    function escapeHtml (string) {
-        return String(string).replace(/[&<>"'=\/]/g, function fromEntityMap (s) {
+    function escapeHtml(string) {
+        return String(string).replace(/[&<>"'=\/]/g, function fromEntityMap(s) {
             return entityMap[s];
         });
     }
+
     //https://stackoverflow.com/a/3177838/171950
     function timeSince(date) {
         var seconds = Math.floor((new Date() - date) / 1000);
