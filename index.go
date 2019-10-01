@@ -202,9 +202,8 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
             authors.forEach(function (author, index) {
                 author.index = index
             });
-            bind("dropdown", {
-                "authors": authors
-            })
+            bind("dropdown", {"authors": authors});
+            bind("list-group", {});
         });
     }
 
@@ -227,6 +226,10 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
                     "error": "Cannot sync from repository, authentication required. For now, try to use <b>git pull</b>."
                 })
             }
+            if (resp.status === 404) {
+                bind("info", {"info": "Already up to date"})
+            }
+
             toggleButton("btn-update", "updating", true);
         });
     }

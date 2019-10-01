@@ -33,6 +33,7 @@ type AuthorWithCommits struct {
 
 const (
 	ErrAuthenticationRequired = "authentication required"
+	ErrAlreadyUpToDate        = "already up-to-date"
 )
 
 func main() {
@@ -104,8 +105,12 @@ func main() {
 
 		err = wt.Pull(&git.PullOptions{Auth: auth})
 		logIfError(err)
-		if err.Error() == ErrAuthenticationRequired {
+
+		if err != nil && err.Error() == ErrAuthenticationRequired {
 			writer.WriteHeader(http.StatusUnauthorized)
+		}
+		if err != nil && err.Error() == ErrAlreadyUpToDate {
+			writer.WriteHeader(http.StatusNotFound)
 		}
 	})
 
