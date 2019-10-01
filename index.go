@@ -262,7 +262,7 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
     function showDiff(title, hash) {
 
         function isBitbucketUrl() {
-            return repoUrl.indexOf('/projects/') > 0 && repoUrl.indexOf('/repos/') > 0;
+            return repoUrl.indexOf('/scm/') > 0;
         }
 
         if (isBitbucketUrl()) {
