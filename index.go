@@ -7,9 +7,12 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/diff2html/2.11.3/diff2html.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.1.0/mustache.min.js"></script>
+<script src="https://unpkg.com/accessible-nprogress/dist/accessible-nprogress.min.js"></script>
 
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/diff2html/2.11.3/diff2html.min.css">
+<link rel='stylesheet' href='https://unpkg.com/accessible-nprogress/dist/accessible-nprogress.min.css'/>
+
 <style>
     @media (min-width: 768px) {
         .modal-xxl {
@@ -26,20 +29,24 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
 <body style="margin: 20px 20px 20px 20px">
 
 <script id="error-template" type="text/template">
+    {{#error}}
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
         {{{error}}}
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
+    {{/error}}
 </script>
 <script id="info-template" type="text/template">
+    {{#info}}
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         {{{info}}}
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
+    {{/info}}
 </script>
 
 <script id="settings-template" type="text/template">
@@ -56,7 +63,7 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
             {{#updating}}
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             {{/updating}}
-            Update Repository
+            Sync from Repository
         </button>
     </div>
 </script>
@@ -160,6 +167,18 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
     var repoUrl;
 
     $(document).ready(function () {
+
+        $.ajaxSetup({
+            beforeSend: function () {
+                NProgress.start();
+            },
+            complete: function () {
+                NProgress.done();
+            },
+            success: function () {
+            }
+        });
+
         $.ajax({
             url: "/api/settings"
         }).done(function (data) {
@@ -198,12 +217,12 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
             getAuthors();
 
             toggleButton("btn-update", "updating", true);
-            bind("info", {"info": "Updated successfully"});
+            bind("info", {"info": "Success"});
 
         }).fail(function (resp) {
             if (resp.status === 401) {
                 bind("error", {
-                    "error": "Cannot update repository, authentication required. For now, try to use <b>git pull</b>."
+                    "error": "Cannot sync from repository, authentication required. For now, try to use <b>git pull</b>."
                 })
             }
             toggleButton("btn-update", "updating", true);
