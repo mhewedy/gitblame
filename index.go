@@ -241,12 +241,12 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
     function showCommits(index) {
         var author = authors[index].author;
         var commits = authors[index].commits.map(function (commit) {
-            var messageArr = commit.message.split("\n");
+            var messageArr = escapeHtml(commit.message).split("\n");
             var title = messageArr[0];
             var body = messageArr.slice(1, messageArr.length).join('<br/>');
             return {
-                "title": escapeQuotes(title),
-                "body": escapeQuotes(body),
+                "title": title,
+                "body": body,
                 "hash": commit.hash,
                 "since": 'Since ' + timeSince(new Date(commit.when)) + ' ago'
             }
@@ -290,10 +290,22 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
 
 <script>
 
-    function escapeQuotes(str) {
-        return str.replace(/'/g, '&apos;').replace(/"/g, '&quot;');
-    }
+    //https://github.com/janl/mustache.js/blob/master/mustache.js
+    var entityMap = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+        '/': '&#x2F;',
+        '=': '&#x3D;'
+    };
 
+    function escapeHtml (string) {
+        return String(string).replace(/[&<>"'=\/]/g, function fromEntityMap (s) {
+            return entityMap[s];
+        });
+    }
     //https://stackoverflow.com/a/3177838/171950
     function timeSince(date) {
         var seconds = Math.floor((new Date() - date) / 1000);
