@@ -87,9 +87,11 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
 
 <script id="list-group-template" type="text/template">
     {{#author}}
-    <div class="alert alert-info" role="alert">
-        User: {{author.name}}&lt;{{author.email}}&gt; has {{commits.length}} commit:
-    </div>
+    <h6>
+        <div class="alert alert-secondary" role="alert">
+            User: {{author.name}}&lt;{{author.email}}&gt; has {{commits.length}} commit:
+        </div>
+    </h6>
     {{/author}}
 
     <div class="list-group-flush">
@@ -264,7 +266,7 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
         function isBitbucketUrl() {
             return repoUrl.indexOf('/scm/') > 0;
         }
-        
+
         function applyActiveClass() {
             $("#commit-" + hash).addClass('active').css("color", "#fff");
         }
