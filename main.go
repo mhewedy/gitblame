@@ -16,19 +16,7 @@ import (
 	"sort"
 	"strings"
 	"syscall"
-	"time"
 )
-
-type Commit struct {
-	Hash    string    `json:"hash"`
-	Message string    `json:"message"`
-	When    time.Time `json:"when"`
-}
-
-type AuthorWithCommits struct {
-	Author  `json:"author"`
-	Commits []Commit `json:"commits"`
-}
 
 const (
 	ErrAuthenticationRequired = "authentication required"
@@ -53,19 +41,9 @@ func main() {
 	}
 
 	http.HandleFunc("/api", func(writer http.ResponseWriter, request *http.Request) {
-		response := make([]AuthorWithCommits, 0)
 
-		authors, err := GroupCommitsByAuthor(r)
+		response, err := GroupCommitsByAuthor(r)
 		logIfError(err)
-
-		for k, v := range *authors {
-			commits := make([]Commit, 0)
-			for _, c := range v {
-				commits = append(commits,
-					Commit{Message: c.Message, Hash: hex.EncodeToString(c.Hash[:]), When: c.Author.When})
-			}
-			response = append(response, AuthorWithCommits{Author: k, Commits: commits})
-		}
 
 		// sort entries by commit count
 		sort.Slice(response, func(i, j int) bool {
