@@ -5,6 +5,7 @@
 Simple Web Application to show each member in team work in a web-based interface 
 
 <img src="https://github.com/mhewedy/gitblame/raw/master/screenshot.gif" width="100%"  />
+<img src="https://github.com/mhewedy/gitblame/raw/master/screenshot2.png" width="100%"  />
 
 ## Usage: 
     

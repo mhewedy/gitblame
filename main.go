@@ -8,6 +8,7 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 	"gopkg.in/src-d/go-billy.v4/memfs"
 	"gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4/plumbing/transport"
 	gitHttp "gopkg.in/src-d/go-git.v4/plumbing/transport/http"
 	"gopkg.in/src-d/go-git.v4/storage/memory"
 	"log"
@@ -16,11 +17,6 @@ import (
 	"sort"
 	"strings"
 	"syscall"
-)
-
-const (
-	ErrAuthenticationRequired = "authentication required"
-	ErrAlreadyUpToDate        = "already up-to-date"
 )
 
 func main() {
@@ -86,11 +82,13 @@ func main() {
 	http.HandleFunc("/api/update", func(writer http.ResponseWriter, request *http.Request) {
 		err := Pull(r, auth)
 
-		if err != nil && err.Error() == ErrAuthenticationRequired {
-			writer.WriteHeader(http.StatusUnauthorized)
-		}
-		if err != nil && err.Error() == ErrAlreadyUpToDate {
-			writer.WriteHeader(http.StatusNotFound)
+		if err != nil {
+			if err == transport.ErrAuthenticationRequired {
+				writer.WriteHeader(http.StatusUnauthorized)
+			}
+			if err == git.NoErrAlreadyUpToDate {
+				writer.WriteHeader(http.StatusNotFound)
+			}
 		}
 	})
 
