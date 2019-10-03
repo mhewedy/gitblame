@@ -8,7 +8,6 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 	"gopkg.in/src-d/go-billy.v4/memfs"
 	"gopkg.in/src-d/go-git.v4"
-	"gopkg.in/src-d/go-git.v4/plumbing/object"
 	gitHttp "gopkg.in/src-d/go-git.v4/plumbing/transport/http"
 	"gopkg.in/src-d/go-git.v4/storage/memory"
 	"log"
@@ -88,23 +87,19 @@ func main() {
 		hashSlice, err := hex.DecodeString(strings.TrimPrefix(request.URL.Path, "/api/diff/"))
 		logIfError(err)
 
-		var hashArr [20]byte
-		copy(hashArr[:], hashSlice)
-		c, err := object.GetCommit(r.Storer, hashArr)
-		logIfError(err)
+		patch := GetPatch(hashSlice, err, r)
 
-		patch, err := GetCommitPatch(c)
-		logIfError(err)
+		if err != nil {
+			logIfError(err)
+			writer.WriteHeader(http.StatusNotFound)
+			return
+		}
 
 		writer.Write([]byte(patch.String()))
 	})
 
 	http.HandleFunc("/api/update", func(writer http.ResponseWriter, request *http.Request) {
-		wt, err := r.Worktree()
-		logIfError(err)
-
-		err = wt.Pull(&git.PullOptions{Auth: auth})
-		logIfError(err)
+		err := Pull(r, auth)
 
 		if err != nil && err.Error() == ErrAuthenticationRequired {
 			writer.WriteHeader(http.StatusUnauthorized)
@@ -130,26 +125,26 @@ func main() {
 }
 
 func readParams() (string, string, string) {
+	//https://stackoverflow.com/a/32768479/171950
+	credentials := func() (string, string) {
+		reader := bufio.NewReader(os.Stdin)
+
+		fmt.Print("Enter Username: ")
+		username, _ := reader.ReadString('\n')
+
+		fmt.Print("Enter Password: ")
+		bytePassword, _ := terminal.ReadPassword(int(syscall.Stdin))
+		password := string(bytePassword)
+
+		return strings.TrimSpace(username), strings.TrimSpace(password)
+	}
+
 	if len(os.Args) < 2 {
 		fmt.Println("Usage:", os.Args[0], "<repo url>")
 		os.Exit(-1)
 	}
 	username, password := credentials()
 	return os.Args[1], username, password
-}
-
-//https://stackoverflow.com/a/32768479/171950
-func credentials() (string, string) {
-	reader := bufio.NewReader(os.Stdin)
-
-	fmt.Print("Enter Username: ")
-	username, _ := reader.ReadString('\n')
-
-	fmt.Print("Enter Password: ")
-	bytePassword, _ := terminal.ReadPassword(int(syscall.Stdin))
-	password := string(bytePassword)
-
-	return strings.TrimSpace(username), strings.TrimSpace(password)
 }
 
 func logIfError(err error) {

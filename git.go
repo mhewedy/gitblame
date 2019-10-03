@@ -3,6 +3,7 @@ package main
 import (
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
+	"gopkg.in/src-d/go-git.v4/plumbing/transport/http"
 	"io"
 )
 
@@ -72,4 +73,21 @@ func GroupCommitsByAuthor(r *git.Repository) (*AuthorCommits, error) {
 	})
 
 	return &authorCommits, nil
+}
+
+func Pull(r *git.Repository, auth *http.BasicAuth) error {
+	wt, err := r.Worktree()
+	logIfError(err)
+	err = wt.Pull(&git.PullOptions{Auth: auth})
+	logIfError(err)
+	return err
+}
+
+func GetPatch(hash []byte, err error, r *git.Repository) *object.Patch {
+	var hashArr [20]byte
+	copy(hashArr[:], hash)
+	c, err := object.GetCommit(r.Storer, hashArr)
+	logIfError(err)
+	patch, err := GetCommitPatch(c)
+	return patch
 }
