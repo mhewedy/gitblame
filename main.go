@@ -40,6 +40,13 @@ func main() {
 		log.Fatal(err)
 	}
 
+	http.HandleFunc("/api/stats", func(writer http.ResponseWriter, request *http.Request) {
+		stats, err := GetCommitStats(r)
+		logIfError(err)
+
+		err = json.NewEncoder(writer).Encode(stats)
+	})
+
 	http.HandleFunc("/api", func(writer http.ResponseWriter, request *http.Request) {
 
 		response, err := GroupCommitsByAuthor(r)

@@ -25,6 +25,43 @@ type AuthorCommits struct {
 	Commits []Commit `json:"commits"`
 }
 
+type Stats struct {
+	Add int `json:"add"`
+	Del int `json:"del"`
+}
+
+func GetCommitStats(r *git.Repository) (map[string]Stats, error) {
+
+	stats := make(map[string]Stats)
+
+	cIter, err := r.Log(&git.LogOptions{All: true})
+	if err != nil {
+		return nil, err
+	}
+	defer cIter.Close()
+
+	err = cIter.ForEach(func(c *object.Commit) error {
+
+		add, del, err := getStats(c)
+		if err != nil {
+			return err
+		}
+
+		stats[hex.EncodeToString(c.Hash[:])] = Stats{
+			Add: add,
+			Del: del,
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return stats, nil
+}
+
 func GroupCommitsByAuthor(r *git.Repository) ([]AuthorCommits, error) {
 	authors := make(map[Author][]Commit)
 

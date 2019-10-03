@@ -24,6 +24,7 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
     a {
         cursor: pointer;
     }
+
 </style>
 
 <body style="margin: 20px 20px 20px 20px">
@@ -104,6 +105,12 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
                 <small>{{since}}</small>
             </div>
             <p class="mb-1">{{{body}}}</p>
+            {{#stat}}
+            <small>
+                <span class="d2h-lines-added">+{{stat.add}}</span>
+                <span class="d2h-lines-deleted">-{{stat.del}}</span>
+            </small>
+            {{/stat}}
         </a>
         {{/commits}}
     </div>
@@ -149,6 +156,8 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
 
     var authors;
     var repoUrl;
+    var stats;
+    var currentAuthorIndex;
 
     $(document).ready(function () {
 
@@ -163,6 +172,12 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
             }
         });
 
+        getSettings();
+        getAuthors();
+        getStats();
+    });
+
+    function getSettings() {
         $.ajax({
             url: "/api/settings"
         }).done(function (data) {
@@ -170,9 +185,7 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
             repoUrl = settings.path;
             ractive.set("settings", settings);
         });
-
-        getAuthors();
-    });
+    }
 
     function getAuthors() {
         $.ajax({
@@ -185,6 +198,15 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
             ractive.set("authors", authors);
             ractive.set("commits", []);
             ractive.set("author", {});
+        });
+    }
+
+    function getStats() {
+        $.ajax({
+            url: "/api/stats"
+        }).done(function (data) {
+            stats = JSON.parse(data);
+            showCommits(currentAuthorIndex);
         });
     }
 
@@ -219,6 +241,7 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
     // ---------------------------------------
 
     function showCommits(index) {
+        currentAuthorIndex = index;
         var author = authors[index].author;
         var commits = authors[index].commits.map(function (commit) {
             var messageArr = escapeHtml(commit.message).split("\n");
@@ -228,7 +251,8 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
                 "title": title,
                 "body": body,
                 "hash": commit.hash,
-                "since": 'Since ' + timeSince(new Date(commit.when)) + ' ago'
+                "since": 'Since ' + timeSince(new Date(commit.when)) + ' ago',
+                "stat": stats && stats[commit.hash]
             }
         });
 
