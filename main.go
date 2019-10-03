@@ -87,7 +87,7 @@ func main() {
 		hashSlice, err := hex.DecodeString(strings.TrimPrefix(request.URL.Path, "/api/diff/"))
 		logIfError(err)
 
-		patch := GetPatch(hashSlice, err, r)
+		patch, err := GetPatch(hashSlice, err, r)
 
 		if err != nil {
 			logIfError(err)
@@ -95,7 +95,7 @@ func main() {
 			return
 		}
 
-		writer.Write([]byte(patch.String()))
+		writer.Write([]byte(patch))
 	})
 
 	http.HandleFunc("/api/update", func(writer http.ResponseWriter, request *http.Request) {

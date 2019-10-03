@@ -77,17 +77,31 @@ func GroupCommitsByAuthor(r *git.Repository) (*AuthorCommits, error) {
 
 func Pull(r *git.Repository, auth *http.BasicAuth) error {
 	wt, err := r.Worktree()
-	logIfError(err)
+	if err != nil {
+		return err
+	}
+
 	err = wt.Pull(&git.PullOptions{Auth: auth})
-	logIfError(err)
+	if err != nil {
+		return err
+	}
+
 	return err
 }
 
-func GetPatch(hash []byte, err error, r *git.Repository) *object.Patch {
+func GetPatch(hash []byte, err error, r *git.Repository) (string, error) {
+
 	var hashArr [20]byte
 	copy(hashArr[:], hash)
 	c, err := object.GetCommit(r.Storer, hashArr)
-	logIfError(err)
+	if err != nil {
+		return "", err
+	}
+
 	patch, err := GetCommitPatch(c)
-	return patch
+	if err != nil {
+		return "", err
+	}
+
+	return patch.String(), nil
 }
