@@ -6,7 +6,7 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/diff2html/2.11.3/diff2html.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.1.0/mustache.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ractive/1.3.8/ractive.min.js"></script>
 <script src="https://unpkg.com/accessible-nprogress/dist/accessible-nprogress.min.js"></script>
 
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -28,7 +28,8 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
 
 <body style="margin: 20px 20px 20px 20px">
 
-<script id="error-template" type="text/template">
+<script id="template" type="text/ractive">
+
     {{#error}}
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
         {{{error}}}
@@ -37,8 +38,7 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
         </button>
     </div>
     {{/error}}
-</script>
-<script id="info-template" type="text/template">
+
     {{#info}}
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         {{{info}}}
@@ -47,45 +47,46 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
         </button>
     </div>
     {{/info}}
-</script>
 
-<script id="settings-template" type="text/template">
     <nav class="navbar navbar-light bg-light">
         <span class="navbar-brand mb-0 h1">Commits for Project at :
             <span style="font-family: monospace; font-weight: bold">{{settings.path}}</span>
         </span>
     </nav>
-</script>
 
-<script id="action-buttons-template" type="text/template">
-    <div style="margin: 20px">
-        <button id="btn-update" class="btn btn-warning" type="button" onclick="update()">
-            {{#updating}}
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            {{/updating}}
-            Sync from Repository
-        </button>
-    </div>
-</script>
-
-<script id="dropdown-template" type="text/template">
-    <div class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false" style="margin: 20px">
-            Team list with number of commits
-        </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            {{#authors}}
-            <a class="dropdown-item" onclick="showCommits('{{index}}')">
-                {{author.name}}&lt;{{author.email}}&gt;
-                <span class="badge badge-primary badge-pill">{{commits.length}}</span>
-            </a>
-            {{/authors}}
+    <div>
+        <div class="row">
+            <div class="col-6">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                            data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false" style="margin: 20px">
+                        Team list with number of commits
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        {{#authors}}
+                        <a class="dropdown-item" onclick="showCommits('{{index}}')">
+                            {{author.name}}&lt;{{author.email}}&gt;
+                            <span class="badge badge-primary badge-pill">{{commits.length}}</span>
+                        </a>
+                        {{/authors}}
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div style="margin: 20px; float: right">
+                    <button id="btn-update" class="btn btn-warning" type="button" onclick="update()">
+                        {{#updating}}
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        {{/updating}}
+                        Sync from Repository
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
-</script>
 
-<script id="list-group-template" type="text/template">
+
     {{#author}}
     <h6>
         <div class="alert alert-secondary" role="alert">
@@ -106,9 +107,7 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
         </a>
         {{/commits}}
     </div>
-</script>
 
-<script id="diff-dialog-template" type="text/template">
     <div class="modal fade" id="diffModalLong" tabindex="-1" role="dialog" aria-labelledby="diffModalLongTitle"
          aria-hidden="true">
         <div class="modal-dialog modal-xxl" role="document">
@@ -136,34 +135,17 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
     </div>
 </script>
 
-<div class="error"></div>
-<div class="info"></div>
-<div class="settings"></div>
-
-<div>
-    <div class="row">
-        <div class="col-6">
-            <div class="dropdown"></div>
-        </div>
-        <div class="col-6">
-            <div class="action-buttons" style="float: right"></div>
-        </div>
-    </div>
-</div>
-
-<div class="list-group"></div>
-<div class="diff-dialog"></div>
+<div id="target"></div>
 
 </body>
 
 <script>
-    function bind(elementId, json) {
-        var template = $('#' + elementId + "-template").html();
-        Mustache.parse(template);
-        $("." + elementId).html(Mustache.render(template, json));
-    }
-</script>
-<script>
+
+    var ractive = new Ractive({
+        target: '#target',
+        template: '#template',
+        data: {greeting: 'Hello', name: 'world'}
+    });
 
     var authors;
     var repoUrl;
@@ -186,9 +168,7 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
         }).done(function (data) {
             var settings = JSON.parse(data);
             repoUrl = settings.path;
-            bind("settings", {
-                "settings": settings
-            })
+            ractive.set("settings", settings);
         });
 
         getAuthors();
@@ -202,14 +182,13 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
             authors.forEach(function (author, index) {
                 author.index = index
             });
-            bind("dropdown", {"authors": authors});
-            bind("list-group", {});
+            ractive.set("authors", authors);
+            ractive.set("commits", []);
+            ractive.set("author", {});
         });
     }
 
     // ---------------------------------------
-
-    bind("action-buttons", {});
 
     function update() {
         toggleButton("btn-update", "updating", false);
@@ -218,16 +197,14 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
             getAuthors();
 
             toggleButton("btn-update", "updating", true);
-            bind("info", {"info": "Success"});
+            ractive.set("info", "Success");
 
         }).fail(function (resp) {
             if (resp.status === 401) {
-                bind("error", {
-                    "error": "Cannot sync from repository, authentication required. For now, try to use <b>git pull</b>."
-                })
+                ractive.set("error", "Cannot sync from repository, authentication required. For now, try to use <b>git pull</b>.");
             }
             if (resp.status === 404) {
-                bind("info", {"info": "Already up to date"})
+                ractive.set("info", "Already up to date");
             }
 
             toggleButton("btn-update", "updating", true);
@@ -235,9 +212,7 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
     }
 
     function toggleButton(btnId, modelVar, enable) {
-        var obj = {};
-        obj[modelVar] = !enable;
-        bind("action-buttons", obj);
+        ractive.set(modelVar, !enable);
         $("#" + btnId).prop('disabled', !enable);
     }
 
@@ -256,10 +231,9 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
                 "since": 'Since ' + timeSince(new Date(commit.when)) + ' ago'
             }
         });
-        bind("list-group", {
-            "commits": commits,
-            "author": author
-        })
+
+        ractive.set("commits", commits);
+        ractive.set("author", author);
     }
 
     // ---------------------------------------
@@ -288,11 +262,11 @@ const indexHtmlContent = `<script src="https://code.jquery.com/jquery-3.3.1.min.
             var diffHtml = Diff2Html.getPrettyHtml(
                 data, {inputFormat: 'diff', showFiles: true, matching: 'lines', outputFormat: 'line-by-line'}
             );
-            bind("diff-dialog", {
-                "title": title,
-                "body": diffHtml,
-                bbUrl: bbUrl
-            });
+
+            ractive.set("title", title);
+            ractive.set("body", diffHtml);
+            ractive.set("bbUrl", bbUrl);
+
             $('#diffModalLong').modal('show');
             $('#diffModalLong').on('hidden.bs.modal', function (e) {
                 $("#commit-" + hash).removeClass('active').css("color", "#000");
