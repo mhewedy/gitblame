@@ -11,6 +11,7 @@ before_script:
 before_deploy:
   - mkdir -p release
   - "GOOS=linux GOARCH=amd64 go build -o release/gitblame"
+  - GOOS=windows go get ./...        #https://github.com/sirupsen/logrus/issues/824
   - "GOOS=windows GOARCH=amd64 go build -o release/gitblame.exe"
 
 deploy:
@@ -20,6 +21,6 @@ deploy:
     - "release/gitblame"
     - "release/gitblame.exe"
   skip_cleanup: true
-  on:
-    tags: true
+#  on:
+#    tags: true
 
