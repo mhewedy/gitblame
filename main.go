@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/gobuffalo/packr/v2"
 	"golang.org/x/crypto/ssh/terminal"
 	"gopkg.in/src-d/go-billy.v4/memfs"
 	"gopkg.in/src-d/go-git.v4"
@@ -101,7 +102,7 @@ func main() {
 		logIfError(err)
 	})
 
-	http.HandleFunc("/", Index)
+	BuildHttpHandlers(packr.New("myBox", "./templates"))
 
 	fmt.Println("Server starts at http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
