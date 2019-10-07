@@ -82,6 +82,7 @@ func main() {
 
 	http.HandleFunc("/api/update", func(writer http.ResponseWriter, request *http.Request) {
 		err := Pull(r, auth)
+		logIfError(err)
 
 		if err != nil {
 			if err == transport.ErrAuthenticationRequired {
@@ -90,6 +91,7 @@ func main() {
 			if err == git.NoErrAlreadyUpToDate {
 				writer.WriteHeader(http.StatusNotFound)
 			}
+			writer.WriteHeader(http.StatusInternalServerError)
 		}
 	})
 

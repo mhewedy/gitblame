@@ -21,6 +21,6 @@ example:
 Then open your browser to http://localhost:8080/
 
 ## Downloads
-Download Latest [Windows build](https://github.com/mhewedy/gitblame/releases/download/v18/gitblame.exe)|
-[Linux build](https://github.com/mhewedy/gitblame/releases/download/v18/gitblame)
+Download Latest [Windows build](https://github.com/mhewedy/gitblame/releases/download/v19/gitblame.exe)|
+[Linux build](https://github.com/mhewedy/gitblame/releases/download/v19/gitblame)
 

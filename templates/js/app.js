@@ -64,19 +64,19 @@ function getStats() {
 
 function update() {
     toggleButton("btn-update", "updating", false);
-    $.ajax({url: "/api/update"}).done(function () {
 
+    $.ajax({url: "/api/update"}).done(function () {
         getAuthors();
 
+        success("Success");
         toggleButton("btn-update", "updating", true);
-        ractive.set("info", "Success");
-
     }).fail(function (resp) {
         if (resp.status === 401) {
-            ractive.set("error", "Cannot sync from repository, authentication required. For now, try to use <b>git pull</b>.");
-        }
-        if (resp.status === 404) {
-            ractive.set("info", "Already up to date");
+            error("Cannot sync from repository, authentication required. For now, try to use <b>git pull</b>.")
+        } else if (resp.status === 404) {
+            success("Already up to date");
+        } else {
+            error("Internal server error, check logs.")
         }
 
         toggleButton("btn-update", "updating", true);
@@ -191,4 +191,26 @@ function timeSince(date) {
         return interval + " minutes";
     }
     return Math.floor(seconds) + " seconds";
+}
+
+// ---------------
+
+function success(msg) {
+    ractive.set("info", msg);
+    ractive.set("type", "success");
+    showAlert();
+}
+
+function error(msg) {
+    ractive.set("info", msg);
+    ractive.set("type", "danger");
+    showAlert();
+}
+
+function hideAlert() {
+    $(".alert").css('display', 'none');
+}
+
+function showAlert() {
+    $(".alert").css('display', 'block');
 }
