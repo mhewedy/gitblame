@@ -159,7 +159,6 @@ func GetPatch(hash []byte, err error, r *git.Repository) (string, error) {
 
 // --------
 
-// TODO call from api
 func getStats(c *object.Commit) (int, int, error) {
 	var (
 		additions int
