@@ -30,7 +30,7 @@ type Stats struct {
 	Del int `json:"del"`
 }
 
-func GetCommitStats(r *git.Repository) (map[string]Stats, error) {
+func GetCommitsStats(r *git.Repository) (map[string]Stats, error) {
 
 	stats := make(map[string]Stats)
 
@@ -90,7 +90,58 @@ func GroupCommitsByAuthor(r *git.Repository) ([]AuthorCommits, error) {
 
 	return response, nil
 }
-func GetCommitPatch(c *object.Commit) (*object.Patch, error) {
+
+func Pull(r *git.Repository, auth *http.BasicAuth) error {
+	wt, err := r.Worktree()
+	if err != nil {
+		return err
+	}
+
+	err = wt.Pull(&git.PullOptions{Auth: auth})
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func GetPatch(hash []byte, err error, r *git.Repository) (string, error) {
+
+	var hashArr [20]byte
+	copy(hashArr[:], hash)
+	c, err := object.GetCommit(r.Storer, hashArr)
+	if err != nil {
+		return "", err
+	}
+
+	patch, err := getCommitPatch(c)
+	if err != nil {
+		return "", err
+	}
+
+	return patch.String(), nil
+}
+
+// --------
+
+func getStats(c *object.Commit) (int, int, error) {
+	var (
+		additions int
+		deletions int
+	)
+	fileStats, err := c.Stats()
+	if err != nil {
+		return 0, 0, err
+	}
+
+	for index := range fileStats {
+		additions += fileStats[index].Addition
+		deletions += fileStats[index].Deletion
+	}
+	return additions, deletions, nil
+}
+
+func getCommitPatch(c *object.Commit) (*object.Patch, error) {
 
 	tree, err := c.Tree()
 	if err != nil {
@@ -124,56 +175,6 @@ func GetCommitPatch(c *object.Commit) (*object.Patch, error) {
 	}
 
 	return patch, nil
-}
-
-func Pull(r *git.Repository, auth *http.BasicAuth) error {
-	wt, err := r.Worktree()
-	if err != nil {
-		return err
-	}
-
-	err = wt.Pull(&git.PullOptions{Auth: auth})
-	if err != nil {
-		return err
-	}
-
-	return err
-}
-
-func GetPatch(hash []byte, err error, r *git.Repository) (string, error) {
-
-	var hashArr [20]byte
-	copy(hashArr[:], hash)
-	c, err := object.GetCommit(r.Storer, hashArr)
-	if err != nil {
-		return "", err
-	}
-
-	patch, err := GetCommitPatch(c)
-	if err != nil {
-		return "", err
-	}
-
-	return patch.String(), nil
-}
-
-// --------
-
-func getStats(c *object.Commit) (int, int, error) {
-	var (
-		additions int
-		deletions int
-	)
-	fileStats, err := c.Stats()
-	if err != nil {
-		return 0, 0, err
-	}
-
-	for index := range fileStats {
-		additions += fileStats[index].Addition
-		deletions += fileStats[index].Deletion
-	}
-	return additions, deletions, nil
 }
 
 func toSlice(authors map[Author][]Commit) []AuthorCommits {

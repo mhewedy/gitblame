@@ -38,7 +38,7 @@ func main() {
 	}
 
 	http.HandleFunc("/api/stats", func(writer http.ResponseWriter, request *http.Request) {
-		stats, err := GetCommitStats(r)
+		stats, err := GetCommitsStats(r)
 		logIfError(err)
 
 		err = json.NewEncoder(writer).Encode(stats)
@@ -87,11 +87,11 @@ func main() {
 		if err != nil {
 			if err == transport.ErrAuthenticationRequired {
 				writer.WriteHeader(http.StatusUnauthorized)
-			}
-			if err == git.NoErrAlreadyUpToDate {
+			} else if err == git.NoErrAlreadyUpToDate {
 				writer.WriteHeader(http.StatusNotFound)
+			} else {
+				writer.WriteHeader(http.StatusInternalServerError)
 			}
-			writer.WriteHeader(http.StatusInternalServerError)
 		}
 	})
 
